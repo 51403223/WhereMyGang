@@ -2,11 +2,24 @@ package com.logpht.wheremygang;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -14,7 +27,7 @@ import java.util.Scanner;
  */
 
 public class AccountService {
-    private static final String RESULT_SUCCESS = "success";
+    public static final String RESULT_SUCCESS = "success";
     private Context context;
     private String fullFileName;
 
@@ -35,9 +48,24 @@ public class AccountService {
         return result;
     }
 
-    public String signUp(String id, String password, String name) {
-
-        return null;
+    public void signUp(final String id, final String password, final String name,
+                         Response.Listener responseListener, Response.ErrorListener errorListener) {
+        String url = "https://finalassandroid.000webhostapp.com/signup.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
+            // put params
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> params = new HashMap<>(5);
+                params.put("idSignUp", id);
+                params.put("nameSignUp", name);
+                params.put("passSignUp", password);
+                params.put("longitude", "0");
+                params.put("latitude", "0");
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
     }
 
     public boolean writeSavedAccount(User user) throws IOException {
