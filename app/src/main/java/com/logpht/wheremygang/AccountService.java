@@ -104,6 +104,8 @@ public class AccountService {
                 user.setJoiningRoomID(Integer.parseInt(scanner.nextLine()));
                 return user;
             } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("AccountService", "read saved account fail while reading file");
                 return null;
             }
         } else {

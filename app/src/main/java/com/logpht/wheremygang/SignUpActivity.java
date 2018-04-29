@@ -1,5 +1,6 @@
 package com.logpht.wheremygang;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -15,17 +16,19 @@ import com.android.volley.VolleyError;
 
 public class SignUpActivity extends AppCompatActivity
         implements View.OnClickListener, Response.Listener, Response.ErrorListener {
-    private EditText phoneEdTxt, nameEdTxt, passEdTxt, confirmEdTxt;
+    private EditText edTxtPhone, edTxtName, edTxtPass, edTxtConfirm;
     private Button btnSignUp;
+    public static final int SIGNUP_SUCCESS = 0;
+    public static final int SIGNUP_FAIL = -1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup);
-        this.phoneEdTxt = findViewById(R.id.phoneSignUp);
-        this.nameEdTxt = findViewById(R.id.nickname);
-        this.passEdTxt = findViewById(R.id.pass);
-        this.confirmEdTxt = findViewById(R.id.confirmPass);
+        this.edTxtPhone = findViewById(R.id.phoneSignUp);
+        this.edTxtName = findViewById(R.id.nickname);
+        this.edTxtPass = findViewById(R.id.pass);
+        this.edTxtConfirm = findViewById(R.id.confirmPass);
         this.btnSignUp = findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(this);
     }
@@ -39,12 +42,12 @@ public class SignUpActivity extends AppCompatActivity
      */
     private int checkValidPassword() {
         // check empty password
-        String password = this.passEdTxt.getText().toString();
+        String password = this.edTxtPass.getText().toString();
         if (password.equals("")) {
             return 1;
         }
         // check matching
-        String confirmPass = this.confirmEdTxt.getText().toString();
+        String confirmPass = this.edTxtConfirm.getText().toString();
         if (!password.equals(confirmPass)) {
             return 2;
         }
@@ -57,12 +60,13 @@ public class SignUpActivity extends AppCompatActivity
      * otherwise - false
      */
     private boolean checkValidPhone() {
-        String phone = this.phoneEdTxt.getText().toString();
+        String phone = this.edTxtPhone.getText().toString();
+        phone = phone.trim();
         if (phone.equals("")) {
             return false;
         }
         for (char digit : phone.toCharArray()) {
-            if (digit <= '0' || digit >= '9') {
+            if (digit < '0' || digit > '9') {
                 return false;
             }
         }
@@ -75,7 +79,8 @@ public class SignUpActivity extends AppCompatActivity
      * otherwise - false
      */
     private boolean checkValidName() {
-        String name = this.nameEdTxt.getText().toString();
+        String name = this.edTxtName.getText().toString();
+        name = name.trim();
         if (name.equals("")) {
             return false;
         }
@@ -110,10 +115,11 @@ public class SignUpActivity extends AppCompatActivity
         }
 
         AccountService accountService = new AccountService(this.getApplicationContext());
-        accountService.signUp(this.phoneEdTxt.getText().toString(), this.passEdTxt.getText().toString(),
-                this.nameEdTxt.getText().toString(), this, this);
+        accountService.signUp(this.edTxtPhone.getText().toString(), this.edTxtPass.getText().toString(),
+                this.edTxtName.getText().toString(), this, this);
     }
 
+    // handle error occurs while requesting server
     @Override
     public void onErrorResponse(VolleyError error) {
         // handle when error from server
@@ -121,16 +127,26 @@ public class SignUpActivity extends AppCompatActivity
         Log.e("onErrorResponse", error.getMessage());
     }
 
+    // handle server response
     @Override
     public void onResponse(Object response) {
         // handle server response
         if (response.equals(AccountService.RESULT_SUCCESS)) {
-            Log.d("signUp - onResponse", "sign up success");
+            // pass created user info to login page
+            User user = new User();
+            user.setName(this.edTxtName.getText().toString());
+            user.setPhone(this.edTxtPhone.getText().toString());
+            user.setPassword(this.edTxtPass.getText().toString());
+
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("user", user);
+            setResult(SIGNUP_SUCCESS, resultIntent);
+            finish();
         } else {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            dialogBuilder.setTitle(R.string.signup_fail_dialog_title)
+            dialogBuilder.setTitle(R.string.error_text)
                         .setMessage(R.string.signup_id_existed)
-                        .setPositiveButton(R.string.signup_fail_dialog_positive_text, null)
+                        .setPositiveButton(R.string.ok_text, null)
                         .show();
             Log.d("signUp - onResponse", "sign up fail");
         }

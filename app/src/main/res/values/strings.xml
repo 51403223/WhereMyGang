@@ -13,6 +13,7 @@
     <string name="confirm_password_not_match">Confirm password not match</string>
     <string name="error_request_server">Error occurs while requesting server. Please try later!</string>
     <string name="signup_id_existed">This phone has been registered. Please check your phone number again!</string>
-    <string name="signup_fail_dialog_title">Error</string>
-    <string name="signup_fail_dialog_positive_text">OK</string>
+    <string name="error_text">Error</string>
+    <string name="ok_text">OK</string>
+    <string name="login_after_signup">Successfully create your account.\nEnjoy!!!</string>
 </resources>

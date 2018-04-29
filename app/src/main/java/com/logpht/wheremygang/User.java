@@ -3,24 +3,50 @@ package com.logpht.wheremygang;
 /**
  * Created by Long on 28/04/2018.
  */
-import com.google.android.gms.maps.model.LatLng;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class User {
+public class User implements Parcelable {
     private String phone;
     private String name;
     private String password;
     private int joiningRoomID;
-    private LatLng location;
+    private double longitude;
+    private double latitude;
 
-    public User(String phone, String name, String password, int joiningRoomID, LatLng location) {
+    public User(String phone, String name, String password, int joiningRoomID, double longitude, double latitude) {
         this.phone = phone;
         this.name = name;
         this.password = password;
         this.joiningRoomID = joiningRoomID;
-        this.location = location;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
-    public User() {}
+    public User() {
+        this.joiningRoomID = 0;
+    }
+
+    protected User(Parcel in) {
+        phone = in.readString();
+        name = in.readString();
+        password = in.readString();
+        joiningRoomID = in.readInt();
+        longitude = in.readDouble();
+        latitude = in.readDouble();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 
     public String getPhone() {
         return phone;
@@ -54,12 +80,20 @@ public class User {
         this.joiningRoomID = joiningRoomID;
     }
 
-    public LatLng getLocation() {
-        return location;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setLocation(LatLng location) {
-        this.location = location;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     @Override
@@ -69,7 +103,23 @@ public class User {
                 ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 ", joiningRoomID=" + joiningRoomID +
-                ", location=" + location +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(phone);
+        dest.writeString(name);
+        dest.writeString(password);
+        dest.writeInt(joiningRoomID);
+        dest.writeDouble(longitude);
+        dest.writeDouble(latitude);
     }
 }
