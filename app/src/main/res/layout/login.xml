@@ -20,7 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:hint=" Phone number"
+        android:inputType="phone"
+        android:hint="@string/phone_number_text"
 
         />
     <EditText
@@ -32,7 +33,7 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:inputType="textPassword"
-        android:hint=" Password"
+        android:hint="@string/password_text"
         />
     <CheckBox
         android:id="@+id/chkBoxRemember"

@@ -23,6 +23,7 @@ public class SignUpActivity extends AppCompatActivity
     private Button btnSignUp;
     public static final int SIGNUP_SUCCESS = 0;
     public static final int SIGNUP_FAIL = -1;
+    public static final String EXTRA_NAME = "user";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,14 +108,12 @@ public class SignUpActivity extends AppCompatActivity
 //        v.requestFocus();
         // check valid phone number format
         if (!checkValidPhone()) {
-            Log.d("onclick", "phone");
             Toast.makeText(this, R.string.check_phone, Toast.LENGTH_LONG).show();
             announceEditTextInputError(this.edTxtPhone);
             return;
         }
         // check name format
         if (!checkValidName()) {
-            Log.d("onclick", "name");
             Toast.makeText(this, R.string.check_name, Toast.LENGTH_LONG).show();
             announceEditTextInputError(this.edTxtName);
             return;
@@ -122,12 +121,10 @@ public class SignUpActivity extends AppCompatActivity
         // check password
         switch (checkValidPassword()) {
             case 1:
-                Log.d("onclick", "pass");
                 Toast.makeText(this, R.string.empty_password, Toast.LENGTH_LONG).show();
                 announceEditTextInputError(this.edTxtPass);
                 return;
             case 2:
-                Log.d("onclick", "confirm pass");
                 Toast.makeText(this, R.string.confirm_password_not_match, Toast.LENGTH_LONG).show();
                 announceEditTextInputError(this.edTxtConfirm);
                 return;
@@ -147,7 +144,8 @@ public class SignUpActivity extends AppCompatActivity
     public void onErrorResponse(VolleyError error) {
         // handle when error from server
         Toast.makeText(this, R.string.error_request_server, Toast.LENGTH_SHORT).show();
-        Log.e("onErrorResponse", error.getMessage());
+        Log.e("signUp - onError", "");
+        error.printStackTrace();
     }
 
     // handle server response
@@ -162,7 +160,7 @@ public class SignUpActivity extends AppCompatActivity
             user.setPassword(this.edTxtPass.getText().toString());
 
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("user", user);
+            resultIntent.putExtra(EXTRA_NAME, user);
             setResult(SIGNUP_SUCCESS, resultIntent);
             finish();
         } else {

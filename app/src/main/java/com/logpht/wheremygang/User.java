@@ -25,6 +25,9 @@ public class User implements Parcelable {
 
     public User() {
         this.joiningRoomID = 0;
+        this.phone = "";
+        this.name = "";
+        this.password = "";
     }
 
     protected User(Parcel in) {

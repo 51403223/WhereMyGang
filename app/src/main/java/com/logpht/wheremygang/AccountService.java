@@ -1,18 +1,14 @@
 package com.logpht.wheremygang;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,16 +32,19 @@ public class AccountService {
         this.fullFileName = context.getFilesDir().getAbsolutePath() + "/gang";
     }
 
-    public AccountService() {
-        this.context = null;
-        this.fullFileName = null;
-    }
-
-    public User signIn(String userID, String password) {
-        User result = null;
-        /* implementation here */
-
-        return result;
+    public void signIn(final String userID, final String password, Response.Listener responseListener, Response.ErrorListener errorListener) {
+        String url = "https://finalassandroid.000webhostapp.com/getInfoUser.php";
+        StringRequest request = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> params = new HashMap<>(5);
+                params.put("id", userID);
+                params.put("pass", password);
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(request);
     }
 
     public void signUp(final String id, final String password, final String name,

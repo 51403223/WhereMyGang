@@ -24,4 +24,6 @@
     <string name="your_name_text">Your Name</string>
     <string name="password_text">Password</string>
     <string name="confirm_password_text">Confirm Password</string>
+    <string name="login_wrong_phone">Your account does not exist. Please check again or sign up a new one</string>
+    <string name="login_wrong_password">Login fail. Make sure you typed the correct password</string>
 </resources>
