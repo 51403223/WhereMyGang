@@ -15,6 +15,7 @@
     <EditText
 
         android:id="@+id/txtPhoneNumber"
+        android:textSize="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
@@ -33,6 +34,16 @@
         android:inputType="textPassword"
         android:hint=" Password"
         />
+    <CheckBox
+        android:id="@+id/chkBoxRemember"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remember_account"
+        android:gravity="left|center_vertical"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="10dp"
+        android:checked="false"/>
     <Button
         android:layout_marginTop="30dp"
         android:id="@+id/btnLogin"
@@ -43,8 +54,9 @@
     <TextView
         android:layout_marginTop="20dp"
         android:id="@+id/txtsignup"
-        android:text="SIGN UP"
+        android:text="@string/sign_up_underline_text"
         android:textSize="17dp"
+
         android:textColor="@color/colorPrimary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

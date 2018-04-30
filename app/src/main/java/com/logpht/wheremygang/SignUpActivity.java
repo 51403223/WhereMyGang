@@ -1,10 +1,13 @@
 package com.logpht.wheremygang;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,10 +28,15 @@ public class SignUpActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup);
+        setResult(SIGNUP_FAIL);
         this.edTxtPhone = findViewById(R.id.phoneSignUp);
+        this.edTxtPhone.setOnTouchListener(new InputEditTextErrorInformer(this.edTxtPhone));
         this.edTxtName = findViewById(R.id.nickname);
+        this.edTxtName.setOnTouchListener(new InputEditTextErrorInformer(this.edTxtName));
         this.edTxtPass = findViewById(R.id.pass);
+        this.edTxtPass.setOnTouchListener(new InputEditTextErrorInformer(this.edTxtPass));
         this.edTxtConfirm = findViewById(R.id.confirmPass);
+        this.edTxtConfirm.setOnTouchListener(new InputEditTextErrorInformer(this.edTxtConfirm));
         this.btnSignUp = findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(this);
     }
@@ -94,29 +102,44 @@ public class SignUpActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
+        // focus to button to lose focus from edittext
+//        v.setFocusableInTouchMode(true);
+//        v.requestFocus();
         // check valid phone number format
         if (!checkValidPhone()) {
+            Log.d("onclick", "phone");
             Toast.makeText(this, R.string.check_phone, Toast.LENGTH_LONG).show();
+            announceEditTextInputError(this.edTxtPhone);
             return;
         }
         // check name format
         if (!checkValidName()) {
+            Log.d("onclick", "name");
             Toast.makeText(this, R.string.check_name, Toast.LENGTH_LONG).show();
+            announceEditTextInputError(this.edTxtName);
             return;
         }
         // check password
         switch (checkValidPassword()) {
             case 1:
+                Log.d("onclick", "pass");
                 Toast.makeText(this, R.string.empty_password, Toast.LENGTH_LONG).show();
+                announceEditTextInputError(this.edTxtPass);
                 return;
             case 2:
+                Log.d("onclick", "confirm pass");
                 Toast.makeText(this, R.string.confirm_password_not_match, Toast.LENGTH_LONG).show();
+                announceEditTextInputError(this.edTxtConfirm);
                 return;
         }
 
         AccountService accountService = new AccountService(this.getApplicationContext());
         accountService.signUp(this.edTxtPhone.getText().toString(), this.edTxtPass.getText().toString(),
                 this.edTxtName.getText().toString(), this, this);
+    }
+
+    private void announceEditTextInputError(EditText editText) {
+        editText.setBackgroundColor(getResources().getColor(R.color.colorRedPink));
     }
 
     // handle error occurs while requesting server
@@ -151,4 +174,5 @@ public class SignUpActivity extends AppCompatActivity
             Log.d("signUp - onResponse", "sign up fail");
         }
     }
+
 }
