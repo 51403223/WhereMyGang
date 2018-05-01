@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorRedPink">#fa8383</color>
     <color name="editTextDefaultBackground"></color>
+    <color name="orange">#ff7800</color>
+    <color name="white">#ffffff</color>
 </resources>

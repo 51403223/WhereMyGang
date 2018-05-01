@@ -2,65 +2,75 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <ImageView
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
         android:id="@+id/logo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/logo" />
-
-    <EditText
-
-        android:id="@+id/txtPhoneNumber"
-        android:textSize="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:inputType="phone"
-        android:hint="@string/phone_number_text"
-
-        />
-    <EditText
-        android:layout_marginTop="30dp"
-        android:id="@+id/txtPassword"
-        android:textSize="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:inputType="textPassword"
-        android:hint="@string/password_text"
-        />
-    <CheckBox
-        android:id="@+id/chkBoxRemember"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/remember_account"
-        android:gravity="left|center_vertical"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="10dp"
-        android:checked="false"/>
-    <Button
-        android:layout_marginTop="30dp"
-        android:id="@+id/btnLogin"
-        android:text="login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:srcCompat="@drawable/logoapp_250"
         />
-    <TextView
-        android:layout_marginTop="20dp"
-        android:id="@+id/txtsignup"
-        android:text="@string/sign_up_underline_text"
-        android:textSize="17dp"
+    <LinearLayout
+        android:layout_marginTop="-40dp"
+        android:id="@+id/aaa"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        android:textColor="@color/colorPrimary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        <EditText
+            android:drawableLeft="@drawable/ic_phone"
+            android:id="@+id/txtPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="30dp"
+            android:inputType="phone"
+            android:hint="@string/phone_number_text"
+            />
+        <EditText
+            android:drawableLeft="@drawable/ic_password"
+            android:layout_marginTop="30dp"
+            android:id="@+id/txtPassword"
+            android:textSize="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:inputType="textPassword"
+            android:hint="@string/password_text"
+            />
+	<CheckBox
+            android:id="@+id/chkBoxRemember"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/remember_account"
+            android:gravity="left|center_vertical"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="10dp"
+            android:checked="false"/>
+        <Button
+            android:background="@color/orange"
+            android:textColor="@color/white"
+            android:layout_marginTop="40dp"
+            android:id="@+id/btnLogin"
+            android:text="@string/login_text"
+            android:textSize="25dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/txtsignup"
+            android:text="@string/sign_up_underline_text"
+            android:textSize="17dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

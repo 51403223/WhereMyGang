@@ -20,6 +20,8 @@
     <string name="sign_up_underline_text">
         <u>SIGN UP</u>
     </string>
+    <string name="sign_up_text">Sign up</string>
+    <string name="login_text">Login</string>
     <string name="phone_number_text">Phone Number</string>
     <string name="your_name_text">Your Name</string>
     <string name="password_text">Password</string>

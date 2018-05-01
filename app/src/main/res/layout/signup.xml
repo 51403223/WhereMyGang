@@ -5,120 +5,70 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_marginTop="30dp"
-        android:layout_gravity="center"
-        android:text="SIGN UP"
-        android:textSize="50dp"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_red_light"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textStyle="bold"
-            android:layout_marginLeft="10dp"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:text="@string/phone_number_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
+      <ImageView
+          android:layout_gravity="center"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:background="@drawable/logoapp_250"
+          />
         <EditText
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="20dp"
             android:id="@+id/phoneSignUp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:inputType="phone"
-            android:hint="09867346322"
-            android:textSize="20dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textStyle="bold"
-            android:layout_marginLeft="10dp"
             android:textSize="20dp"
-            android:layout_weight="1"
-            android:text="@string/your_name_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_number_text"
+	        android:inputType="phone"
+            android:drawableLeft="@drawable/ic_phone"
+            android:drawablePadding="10dp" />
         <EditText
-            android:layout_marginLeft="45dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="20dp"
             android:id="@+id/nickname"
-            android:layout_marginRight="10dp"
             android:textSize="20dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nguyen Van A"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textStyle="bold"
-            android:layout_marginLeft="10dp"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:text="@string/password_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:drawableLeft="@drawable/ic_name"
+            android:hint="@string/your_name_text"/>
         <EditText
-            android:layout_marginLeft="85dp"
-            android:id="@+id/pass"
-            android:layout_marginRight="10dp"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="********                  "/>
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textStyle="bold"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="20dp"
+            android:id="@+id/pass"
             android:textSize="20dp"
-            android:layout_weight="1"
-            android:text="@string/confirm_password_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:layout_marginLeft="10dp"
-            android:id="@+id/confirmPass"
-            android:layout_marginRight="10dp"
-            android:textSize="20dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:hint="********                  "/>
-    </LinearLayout>
+            android:drawableLeft="@drawable/ic_password"
+            android:hint="@string/password_text"/>
+
+    <EditText
+            android:id="@+id/confirmPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:drawableLeft="@drawable/ic_password"
+            android:hint="@string/confirm_password_text"
+            android:inputType="textPassword"
+            android:textSize="20dp" />
 
     <Button
-        android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:id="@+id/btnSignUp"
-        android:text="SIGN UP"
-        android:textSize="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            android:background="@color/orange"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:textColor="@color/white"
+            android:shadowColor="@color/white"
+            android:id="@+id/btnSignUp"
+            android:text="@string/sign_up_text"
+            android:textSize="25dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 </LinearLayout>
