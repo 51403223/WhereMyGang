@@ -22,6 +22,7 @@
 
         <EditText
             android:drawableLeft="@drawable/ic_phone"
+            android:drawablePadding="10dp"
             android:id="@+id/txtPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,6 +34,7 @@
             />
         <EditText
             android:drawableLeft="@drawable/ic_password"
+            android:drawablePadding="10dp"
             android:layout_marginTop="30dp"
             android:id="@+id/txtPassword"
             android:textSize="20dp"
