@@ -1,13 +1,11 @@
 package com.logpht.wheremygang;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +19,7 @@ public class SignUpActivity extends AppCompatActivity
         implements View.OnClickListener, Response.Listener, Response.ErrorListener {
     private EditText edTxtPhone, edTxtName, edTxtPass, edTxtConfirm;
     private Button btnSignUp;
+    private ProgressDialog spinner;
     public static final int SIGNUP_SUCCESS = 0;
     public static final int SIGNUP_FAIL = -1;
     public static final String EXTRA_NAME = "user";
@@ -130,6 +129,14 @@ public class SignUpActivity extends AppCompatActivity
                 return;
         }
 
+        // animate signing-up
+        this.spinner = new ProgressDialog(this);
+        spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        spinner.setIndeterminate(true);
+        spinner.setMessage(getResources().getString(R.string.please_wait_text));
+        spinner.setCanceledOnTouchOutside(false);
+        spinner.show();
+        // request server
         AccountService accountService = new AccountService(this.getApplicationContext());
         accountService.signUp(this.edTxtPhone.getText().toString(), this.edTxtPass.getText().toString(),
                 this.edTxtName.getText().toString(), this, this);
@@ -142,9 +149,10 @@ public class SignUpActivity extends AppCompatActivity
     // handle error occurs while requesting server
     @Override
     public void onErrorResponse(VolleyError error) {
+        this.spinner.dismiss();
         // handle when error from server
-        Toast.makeText(this, R.string.error_request_server, Toast.LENGTH_SHORT).show();
-        Log.e("signUp - onError", "");
+        Toast.makeText(this, R.string.error_request_server, Toast.LENGTH_LONG).show();
+        Log.e("signUp - onError", "-------------");
         error.printStackTrace();
     }
 
@@ -162,8 +170,12 @@ public class SignUpActivity extends AppCompatActivity
             Intent resultIntent = new Intent();
             resultIntent.putExtra(EXTRA_NAME, user);
             setResult(SIGNUP_SUCCESS, resultIntent);
+
+            //stop animate signing-up
+            this.spinner.dismiss();
             finish();
         } else {
+            this.spinner.dismiss();
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             dialogBuilder.setTitle(R.string.error_text)
                         .setMessage(R.string.signup_id_existed)

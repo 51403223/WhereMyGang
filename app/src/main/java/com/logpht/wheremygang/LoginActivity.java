@@ -1,5 +1,6 @@
 package com.logpht.wheremygang;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity
     private Button btnLogin;
     private CheckBox chkBoxRemember;
     private User user;
+    private ProgressDialog spinner;
     private AccountService accountService;
     private static final int SIGNUP_REQUEST_CODE = 1;
     private static final String WRONG_PHONE = "Wrong Phone";
@@ -83,6 +85,14 @@ public class LoginActivity extends AppCompatActivity
             String password = this.edTxtPassword.getText().toString();
             this.user.setPhone(id);
             this.user.setPassword(password);
+            // animate logining
+            this.spinner = new ProgressDialog(this);
+            spinner.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            spinner.setIndeterminate(true);
+            spinner.setMessage(getResources().getString(R.string.logining));
+            spinner.setCanceledOnTouchOutside(false);
+            spinner.show();
+            // request server
             this.accountService.signIn(id, password, this, this);
         }
     }
@@ -154,8 +164,10 @@ public class LoginActivity extends AppCompatActivity
     @Override
     public void onResponse(Object response) {
         if (response.equals(WRONG_PHONE)) {
+            this.spinner.dismiss();
             Toast.makeText(this, R.string.login_wrong_phone, Toast.LENGTH_LONG).show();
         } else if (response.equals(WRONG_PASSWORD)) {
+            this.spinner.dismiss();
             Toast.makeText(this, R.string.login_wrong_password, Toast.LENGTH_LONG).show();
         } else {
             try {
@@ -171,9 +183,14 @@ public class LoginActivity extends AppCompatActivity
                     this.accountService.deleteSavedAccount();
                     Log.d("delete gang", "executed");
                 }
+                // navigate to map page
+                Toast.makeText(this, "Login success", Toast.LENGTH_LONG).show();
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.e("login - response", "cant parse json object");
+                Toast.makeText(this, "Login fail", Toast.LENGTH_LONG).show();
+            } finally {
+                this.spinner.dismiss();
             }
         }
     }
@@ -181,8 +198,9 @@ public class LoginActivity extends AppCompatActivity
     // handle error from server
     @Override
     public void onErrorResponse(VolleyError error) {
-        Toast.makeText(this, R.string.error_request_server, Toast.LENGTH_SHORT).show();
-        Log.e("login - onError", "");
+        this.spinner.dismiss();
+        Toast.makeText(this, R.string.error_request_server, Toast.LENGTH_LONG).show();
+        Log.e("login - onError", "-------------");
         error.printStackTrace();
     }
 }
