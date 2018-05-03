@@ -1,9 +1,14 @@
 package com.logpht.wheremygang;
 
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,32 +19,62 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 public class MapActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
     private User user;
     private GoogleMap mMap;
+    private LocationServices locationService;
+    private ServiceConnection locationServiceConnection;
+    private static final float zoomLevel = 15f;
+    private static final float[] colors = {
+            BitmapDescriptorFactory.HUE_AZURE,
+            BitmapDescriptorFactory.HUE_BLUE,
+            BitmapDescriptorFactory.HUE_CYAN,
+            BitmapDescriptorFactory.HUE_GREEN,
+            BitmapDescriptorFactory.HUE_MAGENTA,
+            BitmapDescriptorFactory.HUE_ORANGE,
+            BitmapDescriptorFactory.HUE_RED,
+            BitmapDescriptorFactory.HUE_ROSE,
+            BitmapDescriptorFactory.HUE_VIOLET,
+            BitmapDescriptorFactory.HUE_YELLOW };
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public MapActivity () {
+        this.user = new User("1", "1", "1", 0, 20, 15);
+        this.locationServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocationServices.LocationBinder locationBinder = (LocationServices.LocationBinder) service;
+                locationService = locationBinder.getLocationService();
+                Log.d("map", "on service connected");
+                sendUserLocation();
+            }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                Log.d("map", "on service disconnected");
+            }
+        };
+        Log.d("map", "constructor");
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("map", "oncreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        user = new User("1", "1", "1", 0, 0, 0);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -64,6 +99,58 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.content_map);
         mapFragment.getMapAsync(this);
+
+        // start location service
+        startLocationService();
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d("map", "onstart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d("map", "ondestroy");
+        super.onDestroy();
+        unbindService(this.locationServiceConnection);
+    }
+
+    private void startLocationService() {
+        Intent locationIntent = new Intent(this, LocationServices.class);
+        bindService(locationIntent, this.locationServiceConnection, BIND_AUTO_CREATE);
+    }
+
+    private void sendUserLocation() {
+        updateUserLocation();
+        if (this.locationService != null) {
+            Log.d("map", "sending user location");
+            locationService.sendUserLocation(this.user);
+        } else {
+            Log.d("map", "can not send user location");
+        }
+    }
+
+    private void updateUserLocation() {
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.d("map", "on map ready");
+//        LatLng longan = new LatLng(10.5, 106.43);
+//        mMap.addMarker(createMarker(longan, colors[0], "long an"));
+//        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(longan, zoomLevel);
+//        mMap.moveCamera(cameraUpdate);
+    }
+
+    private MarkerOptions createMarker(LatLng location, float markerColorFactory, String title) {
+        MarkerOptions markerOptions = new MarkerOptions().position(location)
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColorFactory))
+                .title(title);
+        return markerOptions;
     }
 
     @Override
