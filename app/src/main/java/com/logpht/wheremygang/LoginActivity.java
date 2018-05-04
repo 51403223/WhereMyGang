@@ -1,7 +1,18 @@
 package com.logpht.wheremygang;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +32,7 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class LoginActivity extends AppCompatActivity
         implements View.OnClickListener, Response.Listener, Response.ErrorListener {
@@ -36,9 +48,16 @@ public class LoginActivity extends AppCompatActivity
     private static final String WRONG_PASSWORD = "Wrong Password";
     private static final String JSON_NAME_PARAM = "name";
     private static final String JSON_IDROOM_PARAM = "idRoom";
+    private static final int MY_REQUEST_PERMISSIONS_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // check permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.d("API >= 23", "request permission");
+            requestForPermissions();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         this.txtSignUp = findViewById(R.id.txtsignup);
@@ -63,6 +82,16 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
+        // check network available
+        if (!checkNetworkEnabled()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.enable_network_text)
+                    .setMessage(R.string.enable_network_message)
+                    .setPositiveButton(R.string.ok_text, null)
+                    .show();
+            return;
+        }
+
         int viewID = v.getId();
         if (viewID == R.id.txtsignup) {
             Intent intent = new Intent(this, SignUpActivity.class);
@@ -70,14 +99,30 @@ public class LoginActivity extends AppCompatActivity
         } else if (viewID == R.id.btnLogin) {
             // check phone format
             if (!checkValidPhone()) {
-                Toast.makeText(this, R.string.check_phone, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.check_phone, Toast.LENGTH_SHORT).show();
                 announceEditTextInputError(this.edTxtPhone);
                 return;
             }
             // check empty password
             if (!checkValidPassword()) {
-                Toast.makeText(this, R.string.empty_password, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.empty_password, Toast.LENGTH_SHORT).show();
                 announceEditTextInputError(this.edTxtPassword);
+                return;
+            }
+            // check location available
+            if (!checkGPSEnabled()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.enable_gps_text)
+                        .setMessage(R.string.enable_gps_message)
+                        .setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent gpsIntent = new Intent();
+                                gpsIntent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(gpsIntent);
+                            }
+                        })
+                        .show();
                 return;
             }
             // request to server for login
@@ -203,4 +248,60 @@ public class LoginActivity extends AppCompatActivity
         Log.e("login - onError", "-------------");
         error.printStackTrace();
     }
+
+    private void requestForPermissions() {
+        // request location permission for api >= 23
+        ArrayList<String> permissionList = new ArrayList<>(3);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+        if (permissionList.size() > 0) {
+            String[] permissions = new String[permissionList.size()];
+            for (int i = 0; i < permissionList.size(); i++) {
+                permissions[i] = permissionList.get(i);
+            }
+            ActivityCompat.requestPermissions(this, permissions, MY_REQUEST_PERMISSIONS_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MY_REQUEST_PERMISSIONS_CODE) {
+            // permission denied
+            // exit the app
+            if (grantResults.length == 0 ) {
+                exitApp();
+            } else {
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        exitApp();
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void exitApp() {
+        finish();
+    }
+
+
+    private boolean checkNetworkEnabled() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean checkGPSEnabled() {
+        LocationManager manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
 }

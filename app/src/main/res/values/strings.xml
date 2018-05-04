@@ -30,4 +30,8 @@
     <string name="login_wrong_password">Login fail. Make sure you typed the correct password</string>
     <string name="please_wait_text">Please wait...</string>
     <string name="logining">Signing into your account</string>
+    <string name="enable_network_text">Network disabled</string>
+    <string name="enable_network_message">This app requires internet to work. Please connect to a network!</string>
+    <string name="enable_gps_text">GPS disabled</string>
+    <string name="enable_gps_message">Turn on device location (GPS) and try again</string>
 </resources>

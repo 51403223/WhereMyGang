@@ -26,6 +26,7 @@ public class AccountService {
     public static final String RESULT_SUCCESS = "success";
     private Context context;
     private String fullFileName;
+    private static final String host = "https://finalassandroid.000webhostapp.com";
 
     public AccountService(Context context) {
         this.context = context;
@@ -33,7 +34,7 @@ public class AccountService {
     }
 
     public void signIn(final String userID, final String password, Response.Listener responseListener, Response.ErrorListener errorListener) {
-        String url = "https://finalassandroid.000webhostapp.com/getInfoUser.php";
+        String url = host + "/getInfoUser.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -49,7 +50,7 @@ public class AccountService {
 
     public void signUp(final String id, final String password, final String name,
                          Response.Listener responseListener, Response.ErrorListener errorListener) {
-        String url = "https://finalassandroid.000webhostapp.com/signup.php";
+        String url = host + "/signup.php";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
             // put params
             @Override
