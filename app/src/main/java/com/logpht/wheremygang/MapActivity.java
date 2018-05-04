@@ -1,9 +1,9 @@
 package com.logpht.wheremygang;
 
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -19,24 +19,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-
 public class MapActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, ILocationObserver {
     private User user;
     private GoogleMap mMap;
     private LocationServices locationService;
     private ServiceConnection locationServiceConnection;
+    private static final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
+    private MarkerOptions userMarker;
     private static final float zoomLevel = 15f;
     private static final float[] colors = {
             BitmapDescriptorFactory.HUE_AZURE,
@@ -55,10 +52,13 @@ public class MapActivity extends AppCompatActivity
         this.locationServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocationServices.LocationBinder locationBinder = (LocationServices.LocationBinder) service;
+                LocationServices.LocationServiceBinder locationBinder = (LocationServices.LocationServiceBinder) service;
                 locationService = locationBinder.getLocationService();
+                //locationService.setUser(user);
+                locationService.setUserID(user.getPhone());
+                locationService.registerObserver(MapActivity.this);
                 Log.d("map", "on service connected");
-                sendUserLocation();
+                //sendUserLocation();
             }
 
             @Override
@@ -82,7 +82,9 @@ public class MapActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //locationService.setContinueLoop(false);
+                //locationService.stop();
+                Snackbar.make(view, String.format("%s - %s", user.getLatitude(), user.getLongitude()), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -123,17 +125,17 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void sendUserLocation() {
-        updateUserLocation();
         if (this.locationService != null) {
             Log.d("map", "sending user location");
-            locationService.sendUserLocation(this.user);
+            locationService.sendUserLocation();
         } else {
             Log.d("map", "can not send user location");
         }
     }
 
-    private void updateUserLocation() {
-
+    private void updateUserLocation(Location newLocation) {
+        this.user.setLatitude(newLocation.getLatitude());
+        this.user.setLongitude(newLocation.getLongitude());
     }
 
     @Override
@@ -211,5 +213,17 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onResumeFragments() {
 
+    }
+
+    @Override
+    public void handleDataChange(Object data) {
+        Location newLocation = (Location) data;
+        updateUserLocation(newLocation);
+        drawUserLocation();
+    }
+
+    private void drawUserLocation() {
+        userMarker = createMarker(new LatLng(user.getLatitude(), user.getLongitude()), userMarkerColor, user.getName());
+        mMap.addMarker(userMarker);
     }
 }
