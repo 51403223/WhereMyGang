@@ -1,15 +1,20 @@
 package com.logpht.wheremygang;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,15 +34,19 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, ILocationObserver {
     private User user;
     private GoogleMap mMap;
     private LocationServices locationService;
     private ServiceConnection locationServiceConnection;
+    private LocationManager manager;
     private static final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
     private MarkerOptions userMarker;
     private static final float zoomLevel = 15f;
+    private static final long SEND_LOCATION_INTERVAL_IN_MS = 3000;
     private static final float[] colors = {
             BitmapDescriptorFactory.HUE_AZURE,
             BitmapDescriptorFactory.HUE_BLUE,
@@ -57,12 +66,10 @@ public class MapActivity extends AppCompatActivity
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationServices.LocationServiceBinder locationBinder = (LocationServices.LocationServiceBinder) service;
                 locationService = locationBinder.getLocationService();
-                //locationService.setUser(user);
                 locationService.setUserID(user.getPhone());
                 locationService.registerObserver(MapActivity.this);
+                startSendingLocationLoop();
                 Log.d("map", "on service connected");
-                //sendUserLocation();
-                getLocation();
             }
 
             @Override
@@ -70,7 +77,6 @@ public class MapActivity extends AppCompatActivity
                 Log.d("map", "on service disconnected");
             }
         };
-        Log.d("map", "constructor");
     }
 
     @Override
@@ -86,8 +92,6 @@ public class MapActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //locationService.setContinueLoop(false);
-                //locationService.stop();
                 Snackbar.make(view, String.format("%s - %s", user.getLatitude(), user.getLongitude()), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -106,29 +110,26 @@ public class MapActivity extends AppCompatActivity
                 .findFragmentById(R.id.content_map);
         mapFragment.getMapAsync(this);
 
-        // bua bai` locaiton t chua cya dc, coi bai m xem. bai lab ak ha uk bua m co tai ve k t chua tai ve. de t xem lai
-
         // start location service
         startLocationService();
     }
 
-    private LocationManager manager;
-    private void getLocation() {
-        PackageManager packageManager = getPackageManager();
-        if(!packageManager.hasSystemFeature(packageManager.FEATURE_LOCATION_GPS)){
-            Toast.makeText(this, "Thiet bi khong co GPS", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private boolean checkGPSEnabled() {
         manager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            Toast.makeText(this, "GPS chua duoc mo", Toast.LENGTH_SHORT).show();
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    private void startSendingLocationLoop() {
+        if (!checkGPSEnabled()) {
             return;
         }
+        // start sending and updating location loop
+        Log.d("map", "start locationService loop");
         try{
-            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationService); // t de 3k ma 10s no moi update :v
-            // thoi ke hien tai la tu dong cap nhat dc r
-        } catch (SecurityException e)
-        {e.printStackTrace();}
+            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SEND_LOCATION_INTERVAL_IN_MS, 0, locationService);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -147,15 +148,6 @@ public class MapActivity extends AppCompatActivity
     private void startLocationService() {
         Intent locationIntent = new Intent(this, LocationServices.class);
         bindService(locationIntent, this.locationServiceConnection, BIND_AUTO_CREATE);
-    }
-
-    private void sendUserLocation() {
-        if (this.locationService != null) {
-            Log.d("map", "sending user location");
-            locationService.sendUserLocation();
-        } else {
-            Log.d("map", "can not send user location");
-        }
     }
 
     private void updateUserLocation(Location newLocation) {
