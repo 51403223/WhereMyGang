@@ -3,7 +3,9 @@ package com.logpht.wheremygang;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -59,6 +62,7 @@ public class MapActivity extends AppCompatActivity
                 locationService.registerObserver(MapActivity.this);
                 Log.d("map", "on service connected");
                 //sendUserLocation();
+                getLocation();
             }
 
             @Override
@@ -102,8 +106,29 @@ public class MapActivity extends AppCompatActivity
                 .findFragmentById(R.id.content_map);
         mapFragment.getMapAsync(this);
 
+        // bua bai` locaiton t chua cya dc, coi bai m xem. bai lab ak ha uk bua m co tai ve k t chua tai ve. de t xem lai
+
         // start location service
         startLocationService();
+    }
+
+    private LocationManager manager;
+    private void getLocation() {
+        PackageManager packageManager = getPackageManager();
+        if(!packageManager.hasSystemFeature(packageManager.FEATURE_LOCATION_GPS)){
+            Toast.makeText(this, "Thiet bi khong co GPS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Toast.makeText(this, "GPS chua duoc mo", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try{
+            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationService); // t de 3k ma 10s no moi update :v
+            // thoi ke hien tai la tu dong cap nhat dc r
+        } catch (SecurityException e)
+        {e.printStackTrace();}
     }
 
     @Override
@@ -134,6 +159,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void updateUserLocation(Location newLocation) {
+        Log.d("map", "new location: " + newLocation.getLatitude() + " - " + newLocation.getLongitude());
         this.user.setLatitude(newLocation.getLatitude());
         this.user.setLongitude(newLocation.getLongitude());
     }
@@ -223,7 +249,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void drawUserLocation() {
-        userMarker = createMarker(new LatLng(user.getLatitude(), user.getLongitude()), userMarkerColor, user.getName());
-        mMap.addMarker(userMarker);
+//        userMarker = createMarker(new LatLng(user.getLatitude(), user.getLongitude()), userMarkerColor, user.getName());
+////        mMap.addMarker(userMarker);
     }
 }
