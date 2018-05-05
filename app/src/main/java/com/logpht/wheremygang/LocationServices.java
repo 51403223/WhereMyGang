@@ -4,19 +4,25 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.NoCache;
+import com.android.volley.toolbox.StringRequest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Long on 28/04/2018.
@@ -24,26 +30,26 @@ import java.util.ArrayList;
 
 public class LocationServices extends Service implements LocationListener, IObjectObserver {
     private ArrayList<ILocationObserver> observers = new ArrayList<>(1);
-    private String userID;
+    private String userID; // id of current user
     private IBinder binder = new LocationServiceBinder();
     private RequestQueue requestQueue = new RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
 
     @Override
     public void onCreate() {
-        Log.d("locationservice", "oncreate");
+        Log.d("location service", "oncreate");
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
-        Log.d("locationservice", "ondestroy");
+        Log.d("location service", "ondestroy");
         super.onDestroy();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("locationservice", "onbind");
+        Log.d("location service", "onbind");
         return this.binder;
     }
 
@@ -51,60 +57,50 @@ public class LocationServices extends Service implements LocationListener, IObje
         this.userID = userID;
     }
 
-    //    private MyASyncTask myASyncTask;
-//    public void stop() {
-//        myASyncTask.setContinueLoop(false);
-//    }
-    public void sendUserLocation() {
-        Log.d("locationservice", "sendUserLocation");
-//        myASyncTask = new MyASyncTask(this.user);
-//        myASyncTask.execute();
+    private void sendUserLocation(final Location location) {
+        Log.d("location service", "sendUserLocation");
 
-//        String url = "https://finalassandroid.000webhostapp.com/UpdateLocation.php";
-//        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                Log.d("locationservice", "response: " + response);
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.d("locationservice", "error");
-//                error.printStackTrace();
-//            }
-//        }) {
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                HashMap<String, String> params = new HashMap<>(3);
-//                params.put("IDUser", user.getPhone());
-//                params.put("lati", String.valueOf(user.getLatitude()));
-//                params.put("long", String.valueOf(user.getLongitude()));
-//                return params;
-//            }
-//        };
-//        requestQueue.start();
-//        requestQueue.add(request);
+        String url = "https://finalassandroid.000webhostapp.com/UpdateLocation.php";
+        StringRequest request = new StringRequest(Request.Method.POST, url, null, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("location service", "error send location");
+                error.printStackTrace();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> params = new HashMap<>(3);
+                params.put("IDUser", userID);
+                params.put("lati", String.valueOf(location.getLatitude()));
+                params.put("long", String.valueOf(location.getLongitude()));
+                return params;
+            }
+        };
+        requestQueue.start();
+        requestQueue.add(request);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("locationservice", "location change");
+        Log.d("location service", "location change");
+        sendUserLocation(location);
         this.notifyObservers(location);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        Log.d("location service", "onStatusChanged");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        //Log.d("location service", "onProviderEnabled");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        //Log.d("location service", "onProviderDisabled");
     }
 
     @Override
@@ -114,7 +110,7 @@ public class LocationServices extends Service implements LocationListener, IObje
 
     /**
      * Notify all observers that data has changed
-     * @param data - in this case, it's a Location object which defined by onLocationChange
+     * @param data - in this case, it's a Location object which defined by {@link #onLocationChanged(Location)}
      */
     @Override
     public void notifyObservers(Object data) {

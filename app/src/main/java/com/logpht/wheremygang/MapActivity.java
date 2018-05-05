@@ -1,20 +1,14 @@
 package com.logpht.wheremygang;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,16 +19,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, ILocationObserver {
@@ -43,10 +37,12 @@ public class MapActivity extends AppCompatActivity
     private LocationServices locationService;
     private ServiceConnection locationServiceConnection;
     private LocationManager manager;
-    private static final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
-    private MarkerOptions userMarker;
-    private static final float zoomLevel = 15f;
-    private static final long SEND_LOCATION_INTERVAL_IN_MS = 3000;
+    private final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
+    private Marker userMarker;
+    private final float zoomLevel = 15f;
+    private boolean loopSendLocationFail = false; // sendLocationLoopInterval fail
+    private static final long SEND_LOCATION_MIN_TIME = 3000; // in miliseconds
+    private static final float SEND_LOCATION_MIN_DISTANCE = 50; // in meters
     private static final float[] colors = {
             BitmapDescriptorFactory.HUE_AZURE,
             BitmapDescriptorFactory.HUE_BLUE,
@@ -60,7 +56,7 @@ public class MapActivity extends AppCompatActivity
             BitmapDescriptorFactory.HUE_YELLOW };
 
     public MapActivity () {
-        this.user = new User("1", "1", "1", 0, 20, 15);
+        this.user = new User("1", "1", "1", 0, 10.732583049437197, 106.69998977812224);
         this.locationServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -68,8 +64,8 @@ public class MapActivity extends AppCompatActivity
                 locationService = locationBinder.getLocationService();
                 locationService.setUserID(user.getPhone());
                 locationService.registerObserver(MapActivity.this);
-                startSendingLocationLoop();
                 Log.d("map", "on service connected");
+                startSendingLocationLoop();
             }
 
             @Override
@@ -92,6 +88,9 @@ public class MapActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                user.setLatitude(user.getLatitude() + 0.01);
+                drawUserLocation();
+                moveCameraToMarker(userMarker);
                 Snackbar.make(view, String.format("%s - %s", user.getLatitude(), user.getLongitude()), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -121,13 +120,16 @@ public class MapActivity extends AppCompatActivity
 
     private void startSendingLocationLoop() {
         if (!checkGPSEnabled()) {
+            loopSendLocationFail = true;
             return;
         }
         // start sending and updating location loop
         Log.d("map", "start locationService loop");
         try{
-            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SEND_LOCATION_INTERVAL_IN_MS, 0, locationService);
+            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SEND_LOCATION_MIN_TIME, SEND_LOCATION_MIN_DISTANCE, locationService);
+            loopSendLocationFail = false;
         } catch (SecurityException e) {
+            loopSendLocationFail = true;
             e.printStackTrace();
         }
     }
@@ -136,6 +138,9 @@ public class MapActivity extends AppCompatActivity
     protected void onStart() {
         Log.d("map", "onstart");
         super.onStart();
+        if (loopSendLocationFail) {
+            startSendingLocationLoop();
+        }
     }
 
     @Override
@@ -159,18 +164,20 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("map", "on map ready");
-//        LatLng longan = new LatLng(10.5, 106.43);
-//        mMap.addMarker(createMarker(longan, colors[0], "long an"));
-//        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(longan, zoomLevel);
-//        mMap.moveCamera(cameraUpdate);
+        this.mMap = googleMap;
+        drawUserLocation();
+        moveCameraToMarker(userMarker);
     }
 
     private MarkerOptions createMarker(LatLng location, float markerColorFactory, String title) {
-        MarkerOptions markerOptions = new MarkerOptions().position(location)
+        return new MarkerOptions().position(location)
                 .icon(BitmapDescriptorFactory.defaultMarker(markerColorFactory))
                 .title(title);
-        return markerOptions;
+    }
+
+    private void moveCameraToMarker(Marker marker) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoomLevel);
+        mMap.moveCamera(cameraUpdate);
     }
 
     @Override
@@ -229,19 +236,24 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResumeFragments() {
-
-    }
+    protected void onResumeFragments() {}
 
     @Override
     public void handleDataChange(Object data) {
         Location newLocation = (Location) data;
         updateUserLocation(newLocation);
-        drawUserLocation();
+        if (mMap != null) {
+            drawUserLocation();
+            moveCameraToMarker(userMarker);
+        }
     }
 
     private void drawUserLocation() {
-//        userMarker = createMarker(new LatLng(user.getLatitude(), user.getLongitude()), userMarkerColor, user.getName());
-////        mMap.addMarker(userMarker);
+        // remove old marker
+        if (userMarker != null) {
+            userMarker.remove();
+        }
+        userMarker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
+                userMarkerColor, user.getName()));
     }
 }
