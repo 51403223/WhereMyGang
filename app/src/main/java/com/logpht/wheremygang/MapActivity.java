@@ -31,7 +31,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapActivity extends AppCompatActivity
+<<<<<<< HEAD
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, ILocationObserver {
+=======
+>>>>>>> 731153fbb59f21959a3a94f54086f62192cd813b
     private User user;
     private GoogleMap mMap;
     private LocationServices locationService;
