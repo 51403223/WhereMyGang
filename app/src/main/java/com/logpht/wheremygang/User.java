@@ -14,7 +14,7 @@ public class User implements Parcelable {
     private double longitude;
     private double latitude;
 
-    public User(String phone, String name, String password, int joiningRoomID, double longitude, double latitude) {
+    public User(String phone, String name, String password, int joiningRoomID, double latitude, double longitude) {
         this.phone = phone;
         this.name = name;
         this.password = password;
