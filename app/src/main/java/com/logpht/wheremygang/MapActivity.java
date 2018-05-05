@@ -31,6 +31,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
+
+    // Pha o day nhe
+    // hjrehehehe
     private User user;
     private GoogleMap mMap;
 
