@@ -52,8 +52,8 @@ public class MapActivity extends AppCompatActivity
     private FloatingActionButton fab;
     private final float zoomLevel = 15f;
     private boolean loopSendLocationFail = false; // sendLocationLoopInterval fail
-    private static final long SEND_LOCATION_MIN_TIME = 3000; // in miliseconds
-    private static final float SEND_LOCATION_MIN_DISTANCE = 50; // in meters
+    private static final long SEND_LOCATION_MIN_TIME = 2000; // in miliseconds
+    private static final float SEND_LOCATION_MIN_DISTANCE = 10; // in meters
     private static final float[] colors = {
             BitmapDescriptorFactory.HUE_AZURE,
             BitmapDescriptorFactory.HUE_BLUE,
@@ -127,12 +127,16 @@ public class MapActivity extends AppCompatActivity
     private void startSendingLocationLoop() {
         if (!checkGPSEnabled()) {
             loopSendLocationFail = true;
+            if (userMarker != null) {
+                userMarker.remove();
+            }
             return;
         }
         // start sending and updating location loop
         Log.d("map", "start locationService loop");
         try{
-            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SEND_LOCATION_MIN_TIME, SEND_LOCATION_MIN_DISTANCE, locationService);
+            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SEND_LOCATION_MIN_TIME,
+                    SEND_LOCATION_MIN_DISTANCE, locationService);
             loopSendLocationFail = false;
         } catch (SecurityException e) {
             loopSendLocationFail = true;
@@ -141,12 +145,17 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
-        Log.d("map", "onstart");
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (loopSendLocationFail) {
             startSendingLocationLoop();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d("map", "onstart");
+        super.onStart();
     }
 
     @Override
@@ -258,7 +267,9 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResumeFragments() {}
+    protected void onResumeFragments() {
+        Log.e("---------", "-----------");
+    }
 
     @Override
     public void handleDataChange(Object data) {

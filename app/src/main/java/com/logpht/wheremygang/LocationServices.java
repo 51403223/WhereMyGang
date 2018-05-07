@@ -30,27 +30,27 @@ import java.util.Map;
 
 public class LocationServices extends Service implements LocationListener, IObjectObserver {
     protected static final String host = "https://finalassandroid.000webhostapp.com";
-    private ArrayList<ILocationObserver> observers = new ArrayList<>(1);
-    private String userID; // id of current user
+    protected ArrayList<ILocationObserver> observers = new ArrayList<>(1);
+    protected String userID; // id of current user
     private IBinder binder = new LocationServiceBinder();
-    private RequestQueue requestQueue = new RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
+    protected RequestQueue requestQueue = new RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
 
     @Override
     public void onCreate() {
-        Log.d("location service", "oncreate");
+        //Log.d("location service", "oncreate");
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
-        Log.d("location service", "ondestroy");
+        //Log.d("location service", "ondestroy");
         super.onDestroy();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("location service", "onbind");
+        //Log.d("location service", "onbind");
         return this.binder;
     }
 
@@ -59,7 +59,7 @@ public class LocationServices extends Service implements LocationListener, IObje
     }
 
     private void sendUserLocation(final Location location) {
-        Log.d("location service", "sendUserLocation");
+        //Log.d("location service", "sendUserLocation");
 
         String url = host + "/UpdateLocation.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, null, new Response.ErrorListener() {
@@ -85,7 +85,7 @@ public class LocationServices extends Service implements LocationListener, IObje
     @Override
     public void onLocationChanged(Location location) {
         Log.d("location service", "location change");
-        sendUserLocation(location);
+        //sendUserLocation(location);
         this.notifyObservers(location);
     }
 
@@ -96,12 +96,12 @@ public class LocationServices extends Service implements LocationListener, IObje
 
     @Override
     public void onProviderEnabled(String provider) {
-        //Log.d("location service", "onProviderEnabled");
+        Log.d("location service", "onProviderEnabled");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        //Log.d("location service", "onProviderDisabled");
+        Log.d("location service", "onProviderDisabled");
     }
 
     @Override

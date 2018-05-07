@@ -46,5 +46,5 @@
     <string name="send_room_info_message">Your room ID: %s\nPassword: %s\nDo you want to send these info to
         your friends?</string>
     <string name="send_text">Send</string>
-    <string name="room_info">Room ID: %s\nPassword: %s</string>
+    <string name="room_info">Where My Gang\nRoom ID: %s\nPassword: %s</string>
 </resources>
