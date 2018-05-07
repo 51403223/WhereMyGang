@@ -40,6 +40,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, ILocationObserver {
     private User user;
@@ -47,8 +53,6 @@ public class MapActivity extends AppCompatActivity
     private LocationServices locationService;
     private ServiceConnection locationServiceConnection; // connection for location sender
     private LocationManager manager;
-    private final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
-    private Marker userMarker;
     private FloatingActionButton fab;
     private final float zoomLevel = 15f;
     private boolean loopSendLocationFail = false; // sendLocationLoopInterval fail
@@ -65,11 +69,15 @@ public class MapActivity extends AppCompatActivity
             BitmapDescriptorFactory.HUE_ROSE,
             BitmapDescriptorFactory.HUE_VIOLET,
             BitmapDescriptorFactory.HUE_YELLOW };
-    private LocationReceivingService locationReceivingService;
-    private ServiceConnection receiveConnection; // connection for location receiver
+    private ReceiveLocationTask receiveLocationTask;
+    private ArrayList<User> receivedUsers;
+    private ArrayList<Marker> markerList;
+    private Response.Listener receiveLocResponse;
+    private Response.ErrorListener receiveLocError;
+    private static final int RECEIVE_LOCATION_INTERVAL = 5000; // amount of time to request locations, in miliseconds
 
     public MapActivity () {
-        this.user = new User("1", "1", "1", 0, 10.732583049437197, 106.69998977812224);
+        user = new User("2", "2", "2", 39, 10.755806, 106.722867);
         this.locationServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -120,6 +128,8 @@ public class MapActivity extends AppCompatActivity
 
         // start location service
         startLocationService();
+        // prepare receive location
+        initializeReceiveLocation();
     }
 
     private boolean checkGPSEnabled() {
@@ -130,9 +140,6 @@ public class MapActivity extends AppCompatActivity
     private void startSendingLocationLoop() {
         if (!checkGPSEnabled()) {
             loopSendLocationFail = true;
-            if (userMarker != null) {
-                userMarker.remove();
-            }
             return;
         }
         // start sending and updating location loop
@@ -158,8 +165,10 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         Log.d("map", "onstart");
-        startLocationReceiver();
         super.onStart();
+        if (mMap != null) {
+            startReceiveLocation();
+        }
     }
 
     @Override
@@ -192,8 +201,9 @@ public class MapActivity extends AppCompatActivity
         Log.d("map", "on map ready");
         this.mMap = googleMap;
         mMap.setMyLocationEnabled(true); // show user position
-        drawUserLocation();
-        moveCameraToMarker(userMarker);
+        if (this.user.getJoiningRoomID() != 0) {
+            this.receiveLocationTask.execute(user.getJoiningRoomID());
+        }
     }
 
     private MarkerOptions createMarker(LatLng location, float markerColorFactory, String title) {
@@ -286,19 +296,13 @@ public class MapActivity extends AppCompatActivity
         Toast.makeText(this, "---------------", Toast.LENGTH_LONG).show();
         Location newLocation = (Location) data;
         updateUserLocation(newLocation);
-        if (mMap != null) {
-            drawUserLocation();
-            moveCameraToMarker(userMarker);
-        }
     }
 
-    private void drawUserLocation() {
-        // remove old marker
-        if (userMarker != null) {
-            userMarker.remove();
-        }
-        userMarker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
-                userMarkerColor, user.getName()));
+    private Marker drawUserLocation(User user, float color) {
+        Marker marker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
+                color, user.getName()));
+        //moveCameraToMarker(marker);
+        return marker;
     }
 
     private void setLeaveRoomEnable(boolean enable) {
@@ -306,17 +310,7 @@ public class MapActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         Menu menu = navigationView.getMenu();
         MenuItem leaveRoomItem = menu.findItem(R.id.nav_slideshow);
-        // do nothing when already as desired state
-        if (leaveRoomItem.isEnabled() == enable) {
-            return;
-        }
-        // otherwise
-        if (enable) {
-            leaveRoomItem.setEnabled(true);
-
-        } else {
-            leaveRoomItem.setEnabled(false);
-        }
+        leaveRoomItem.setEnabled(enable);
     }
 
     private void handleCreateRoom() {
@@ -417,6 +411,7 @@ public class MapActivity extends AppCompatActivity
                                 // join room success
                                 // close join-room dialog
                                 user.setJoiningRoomID(Integer.parseInt(roomId));
+                                startReceiveLocation();
                                 setLeaveRoomEnable(true);
                                 fab.setOnClickListener(null);
                                 joinRoom.dismiss();
@@ -467,6 +462,7 @@ public class MapActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         if (response.equals(RoomServices.RESULT_SUCCESS)) {
                             user.setJoiningRoomID(0);
+                            stopReceiveLocation();
                             setLeaveRoomEnable(false);
                             fab.setOnClickListener(null);
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
@@ -513,28 +509,76 @@ public class MapActivity extends AppCompatActivity
         sendSMSDialog.show();
     }
 
-    private void startLocationReceiver() {
-        // set up connection
-        this.receiveConnection = new ServiceConnection() {
+    /**
+     * initialize components that used for receive locations
+     */
+    private void initializeReceiveLocation() {
+        this.receiveLocResponse = new Response.Listener() {
             @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d("map", "receive service connected");
-                // set up location receiver service
-                LocationServices.LocationServiceBinder locationServiceBinder = (LocationServices.LocationServiceBinder) service;
-                locationReceivingService = (LocationReceivingService) locationServiceBinder.getLocationService();
-                locationReceivingService.setRoomID(user.getJoiningRoomID());
-                locationReceivingService.registerObserver(MapActivity.this);
+            public void onResponse(Object response) {
+                try {
+                    Log.d("map", "received locations");
+                    // get users info
+                    String result = (String) response;
+                    JSONArray arrayUser = new JSONArray(result);
+                    Log.d("map", "num of received locations = " + arrayUser.length());
+                    receivedUsers = new ArrayList<>(arrayUser.length());
+                    JSONObject jsonObject;
+                    User u;
+                    for (int i = 0; i < arrayUser.length(); i++) {
+                        jsonObject = arrayUser.getJSONObject(i);
+                        u = new User();
+                        u.setPhone(jsonObject.getString("id"));
+                        u.setName(jsonObject.getString("name"));
+                        u.setLatitude(jsonObject.getDouble("latitude"));
+                        u.setLongitude(jsonObject.getDouble("longitude"));
+                        receivedUsers.add(u);
+                    }
+                    // draw locations
+                    drawMarkers(receivedUsers);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {}
         };
-        // start service
-        Intent intent = new Intent(this, LocationReceivingService.class);
-        bindService(intent, receiveConnection, BIND_AUTO_CREATE);
+
+        this.receiveLocError = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("map", "error on receive locations");
+                error.printStackTrace();
+            }
+        };
+
+        this.receiveLocationTask = new ReceiveLocationTask(RECEIVE_LOCATION_INTERVAL, receiveLocResponse, receiveLocError);
+    }
+
+    private void startReceiveLocation() {
+        this.receiveLocationTask.execute(user.getJoiningRoomID());
     }
 
     private void stopReceiveLocation() {
-        unbindService(receiveConnection);
+        this.receiveLocationTask.stopTask();
     }
+
+    /**
+     * draw users' locations that received from server
+     * @param arrUsers - list of users, i use this.receivedUsers
+     */
+    private void drawMarkers(ArrayList<User> arrUsers) {
+        // remove old markers
+        if (this.markerList != null) {
+            for (Marker marker : markerList) {
+                marker.remove();
+            }
+        }
+        // draw new markers
+        markerList = new ArrayList<>(arrUsers.size());
+        Marker marker;
+        for (User u : arrUsers) {
+            marker = drawUserLocation(u, colors[1]);
+            markerList.add(marker);
+        }
+    }
+
 }

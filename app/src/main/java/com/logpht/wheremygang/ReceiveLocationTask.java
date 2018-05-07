@@ -1,6 +1,7 @@
 package com.logpht.wheremygang;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -19,13 +20,19 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
     private ArrayList<ILocationObserver> observers = new ArrayList<>();
     private boolean continueLoop = true;
     private int interval;
+    private Response.Listener responseListener;
+    private Response.ErrorListener errorListener;
     protected RequestQueue requestQueue = new RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
+    private static final String tag = "ReceiveLocationTask";
 
-    public ReceiveLocationTask(int interval) {
+    public ReceiveLocationTask(int interval, Response.Listener responseListener, Response.ErrorListener errorListener) {
         this.interval = interval;
+        this.responseListener = responseListener;
+        this.errorListener = errorListener;
     }
 
     public void stopTask() {
+        Log.d(tag, "stoping task");
         this.continueLoop = false;
     }
 
@@ -34,15 +41,18 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
         int roomId = integers[0];
         while (continueLoop) {
             try {
+                receiveLocations(roomId, responseListener, errorListener);
                 Thread.sleep(interval);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        Log.d(tag, "doInBackground done");
         return null;
     }
 
     public void receiveLocations(final int roomId, Response.Listener response, Response.ErrorListener errorListener) {
+        Log.d(tag, "requesting server for locations");
         String url = LocationServices.host + "/getLocationUserInRoom.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, response, errorListener) {
             @Override
@@ -61,6 +71,10 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
         this.observers.add(observer);
     }
 
+    /**
+     * Notify all observers that data has changed
+     * @param data - in this case, it's User
+     */
     @Override
     public void notifyObservers(Object data) {
         for (ILocationObserver observer : this.observers) {
