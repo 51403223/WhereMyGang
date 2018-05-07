@@ -1,5 +1,6 @@
 package com.logpht.wheremygang;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -12,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -45,15 +45,15 @@ public class MapActivity extends AppCompatActivity
     private User user;
     private GoogleMap mMap;
     private LocationServices locationService;
-    private ServiceConnection locationServiceConnection;
+    private ServiceConnection locationServiceConnection; // connection for location sender
     private LocationManager manager;
     private final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
     private Marker userMarker;
     private FloatingActionButton fab;
     private final float zoomLevel = 15f;
     private boolean loopSendLocationFail = false; // sendLocationLoopInterval fail
-    private static final long SEND_LOCATION_MIN_TIME = 2000; // in miliseconds
-    private static final float SEND_LOCATION_MIN_DISTANCE = 10; // in meters
+    private static final long SEND_LOCATION_MIN_TIME = 0; // in miliseconds
+    private static final float SEND_LOCATION_MIN_DISTANCE = 5; // in meters
     private static final float[] colors = {
             BitmapDescriptorFactory.HUE_AZURE,
             BitmapDescriptorFactory.HUE_BLUE,
@@ -65,6 +65,8 @@ public class MapActivity extends AppCompatActivity
             BitmapDescriptorFactory.HUE_ROSE,
             BitmapDescriptorFactory.HUE_VIOLET,
             BitmapDescriptorFactory.HUE_YELLOW };
+    private LocationReceivingService locationReceivingService;
+    private ServiceConnection receiveConnection; // connection for location receiver
 
     public MapActivity () {
         this.user = new User("1", "1", "1", 0, 10.732583049437197, 106.69998977812224);
@@ -109,6 +111,7 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.content_map);
         mapFragment.getMapAsync(this);
+        mapFragment.onResume(); // add this for android 5.0 can work
 
         //set leave-room menu option enable
         if (user.getJoiningRoomID() == 0) {
@@ -155,7 +158,14 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         Log.d("map", "onstart");
+        startLocationReceiver();
         super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopReceiveLocation();
     }
 
     @Override
@@ -176,10 +186,12 @@ public class MapActivity extends AppCompatActivity
         this.user.setLongitude(newLocation.getLongitude());
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("map", "on map ready");
         this.mMap = googleMap;
+        mMap.setMyLocationEnabled(true); // show user position
         drawUserLocation();
         moveCameraToMarker(userMarker);
     }
@@ -267,12 +279,11 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResumeFragments() {
-        Log.e("---------", "-----------");
-    }
+    protected void onResumeFragments() {}
 
     @Override
     public void handleDataChange(Object data) {
+        Toast.makeText(this, "---------------", Toast.LENGTH_LONG).show();
         Location newLocation = (Location) data;
         updateUserLocation(newLocation);
         if (mMap != null) {
@@ -500,5 +511,30 @@ public class MapActivity extends AppCompatActivity
                 })
                 .setNegativeButton(R.string.cancel_text, null);
         sendSMSDialog.show();
+    }
+
+    private void startLocationReceiver() {
+        // set up connection
+        this.receiveConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d("map", "receive service connected");
+                // set up location receiver service
+                LocationServices.LocationServiceBinder locationServiceBinder = (LocationServices.LocationServiceBinder) service;
+                locationReceivingService = (LocationReceivingService) locationServiceBinder.getLocationService();
+                locationReceivingService.setRoomID(user.getJoiningRoomID());
+                locationReceivingService.registerObserver(MapActivity.this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {}
+        };
+        // start service
+        Intent intent = new Intent(this, LocationReceivingService.class);
+        bindService(intent, receiveConnection, BIND_AUTO_CREATE);
+    }
+
+    private void stopReceiveLocation() {
+        unbindService(receiveConnection);
     }
 }

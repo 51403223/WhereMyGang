@@ -85,23 +85,23 @@ public class LocationServices extends Service implements LocationListener, IObje
     @Override
     public void onLocationChanged(Location location) {
         Log.d("location service", "location change");
-        //sendUserLocation(location);
-        this.notifyObservers(location);
+        sendUserLocation(location);
+        //this.notifyObservers(location);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("location service", "onStatusChanged");
+       // Log.d("location service", "onStatusChanged");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d("location service", "onProviderEnabled");
+        //Log.d("location service", "onProviderEnabled");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.d("location service", "onProviderDisabled");
+        //Log.d("location service", "onProviderDisabled");
     }
 
     @Override
@@ -127,49 +127,3 @@ public class LocationServices extends Service implements LocationListener, IObje
     }
 
 }
-
-//class MyASyncTask extends AsyncTask<Void, Void, Void> {
-//    private User user;
-//    private boolean continueLoop = true;
-//
-//    public MyASyncTask(User user) {
-//        this.user = user;
-//    }
-//
-//    public void setContinueLoop(boolean continueLoop) {
-//        this.continueLoop = continueLoop;
-//    }
-//
-//    @Override
-//    protected Void doInBackground(Void... voids) {
-//        while (continueLoop) {
-//            user.setLatitude(user.getLatitude() + 1);
-//            user.setLongitude(user.getLongitude() + 1);
-//            Log.d("locationservice", String.format("%s - %s", user.getLatitude(), user.getLongitude()));
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return null;
-//    }
-//
-//    @Override
-//    protected void onProgressUpdate(Void... values) {
-//
-//    }
-//
-//    @Override
-//    protected void onPreExecute() {
-//
-//    }
-//
-//    @Override
-//    protected void onPostExecute(Void aVoid) {
-//
-//    }
-//
-//
-//}
-
