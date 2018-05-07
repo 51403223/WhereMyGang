@@ -29,6 +29,7 @@ import java.util.Map;
  */
 
 public class LocationServices extends Service implements LocationListener, IObjectObserver {
+    protected static final String host = "https://finalassandroid.000webhostapp.com";
     private ArrayList<ILocationObserver> observers = new ArrayList<>(1);
     private String userID; // id of current user
     private IBinder binder = new LocationServiceBinder();
@@ -60,7 +61,7 @@ public class LocationServices extends Service implements LocationListener, IObje
     private void sendUserLocation(final Location location) {
         Log.d("location service", "sendUserLocation");
 
-        String url = "https://finalassandroid.000webhostapp.com/UpdateLocation.php";
+        String url = host + "/UpdateLocation.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, null, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {

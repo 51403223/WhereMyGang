@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -27,6 +28,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,6 +49,7 @@ public class MapActivity extends AppCompatActivity
     private LocationManager manager;
     private final float userMarkerColor = BitmapDescriptorFactory.HUE_RED;
     private Marker userMarker;
+    private FloatingActionButton fab;
     private final float zoomLevel = 15f;
     private boolean loopSendLocationFail = false; // sendLocationLoopInterval fail
     private static final long SEND_LOCATION_MIN_TIME = 3000; // in miliseconds
@@ -91,17 +95,7 @@ public class MapActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                user.setLatitude(user.getLatitude() + 0.01);
-                drawUserLocation();
-                moveCameraToMarker(userMarker);
-                Snackbar.make(view, String.format("%s - %s", user.getLatitude(), user.getLongitude()), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -115,6 +109,11 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.content_map);
         mapFragment.getMapAsync(this);
+
+        //set leave-room menu option enable
+        if (user.getJoiningRoomID() == 0) {
+            setLeaveRoomEnable(false);
+        }
 
         // start location service
         startLocationService();
@@ -226,67 +225,11 @@ public class MapActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
-            final Dialog createRoom = new Dialog(MapActivity.this);
-
-            createRoom.setTitle("Create Your Room");
-            createRoom.setContentView(R.layout.create_room);
-            final EditText nameRoom = createRoom.findViewById(R.id.nameRoom);
-            final EditText passRoom = createRoom.findViewById(R.id.passRoom);
-            Button btn_create = createRoom.findViewById(R.id.btn_createRoom);
-            btn_create.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(MapActivity.this, nameRoom.getText().toString()+"-" +
-                            passRoom.getText().toString(), Toast.LENGTH_SHORT).show();
-                    createRoom.dismiss();
-                }
-            });
-            createRoom.show();
-            Window window = createRoom.getWindow();
-            window.setLayout(Toolbar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
-
+            handleCreateRoom();
         } else if (id == R.id.nav_gallery) {
-            final Dialog joinRoom = new Dialog(MapActivity.this);
-            joinRoom.setTitle("Join Room");
-            joinRoom.setContentView(R.layout.join_room);
-            final EditText idRoom = joinRoom.findViewById(R.id.id_room);
-            final EditText passRoom = joinRoom.findViewById(R.id.pass_join_room);
-            Button btn_join = joinRoom.findViewById(R.id.btn_joinRoom);
-            btn_join.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(MapActivity.this, idRoom.getText().toString() + "-"
-                            + passRoom.getText().toString(), Toast.LENGTH_SHORT).show();
-                    joinRoom.dismiss();
-                }
-            });
-            joinRoom.show();
-            Window window = joinRoom.getWindow();
-            window.setLayout(Toolbar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
-
+            handleJoinRoom();
         } else if (id == R.id.nav_slideshow) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-            builder.setTitle("Leave Room");
-            builder.setMessage("Do you want to leave this Room ");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    // neu no la chu phong ...........
-
-                    // neu no khong la chu phong .............
-                    Toast.makeText(MapActivity.this, "You left this Room", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(MapActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.show();
-
-
+            handleLeaveRoom();
         } else if (id == R.id.nav_manage) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
             builder.setTitle("Delte Room");
@@ -305,9 +248,6 @@ public class MapActivity extends AppCompatActivity
                 }
             });
             builder.show();
-
-
-
         } else if (id == R.id.nav_share) {
 
         }
@@ -337,5 +277,217 @@ public class MapActivity extends AppCompatActivity
         }
         userMarker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
                 userMarkerColor, user.getName()));
+    }
+
+    private void setLeaveRoomEnable(boolean enable) {
+        // get leave-room item
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+        MenuItem leaveRoomItem = menu.findItem(R.id.nav_slideshow);
+        // do nothing when already as desired state
+        if (leaveRoomItem.isEnabled() == enable) {
+            return;
+        }
+        // otherwise
+        if (enable) {
+            leaveRoomItem.setEnabled(true);
+
+        } else {
+            leaveRoomItem.setEnabled(false);
+        }
+    }
+
+    private void handleCreateRoom() {
+        final Dialog createRoom = new Dialog(this);
+        createRoom.setContentView(R.layout.create_room);
+        final EditText nameRoom = createRoom.findViewById(R.id.nameRoom);
+        final EditText passRoom = createRoom.findViewById(R.id.passRoom);
+        final Button btn_create = createRoom.findViewById(R.id.btn_createRoom);
+        btn_create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String roomName = nameRoom.getText().toString().trim();
+                final String roomPassword = passRoom.getText().toString();
+                if (roomName.equals("") || roomPassword.equals("")) {
+                    Toast.makeText(MapActivity.this, getResources().getString(R.string.missing_input),
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    btn_create.setEnabled(false);
+                    btn_create.setText(getResources().getString(R.string.requesting_text));
+                    btn_create.setBackgroundColor(getResources().getColor(R.color.gray));
+                    createRoom.setCanceledOnTouchOutside(false);
+                    Response.Listener<String> roomResponseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(final String response) {
+                            // response variable contains id of newly created room
+                            if (response.equals("0")) {
+                                // create room fail
+                                createRoom.setCanceledOnTouchOutside(true);
+                                btn_create.setBackgroundColor(getResources().getColor(R.color.orange));
+                                btn_create.setText(getResources().getString(R.string.create_text));
+                                btn_create.setEnabled(true);
+                                Toast.makeText(MapActivity.this,
+                                        getResources().getString(R.string.create_room_fail),
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                int createRoomId = Integer.parseInt(response);
+                                user.setJoiningRoomID(createRoomId);
+                                setLeaveRoomEnable(true);
+                                // close create-room dialog
+                                createRoom.dismiss();
+
+                                // ask if user wants to send id & password to friends
+                                sendRoomInfoToFriends(response, roomPassword);
+                                fab.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        sendRoomInfoToFriends(response, roomPassword);
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            createRoom.setCanceledOnTouchOutside(true);
+                            btn_create.setBackgroundColor(getResources().getColor(R.color.orange));
+                            btn_create.setText(getResources().getString(R.string.create_text));
+                            btn_create.setEnabled(true);
+                            Toast.makeText(MapActivity.this, getResources().getString(R.string.error_request_server),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    };
+                    RoomServices roomServices = new RoomServices();
+                    roomServices.createRoom(user.getPhone(), roomName, roomPassword, roomResponseListener, errorListener);
+                }
+            }
+        });
+        createRoom.show();
+        Window window = createRoom.getWindow();
+        window.setLayout(Toolbar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void handleJoinRoom() {
+        final Dialog joinRoom = new Dialog(this);
+        joinRoom.setContentView(R.layout.join_room);
+        final EditText idRoom = joinRoom.findViewById(R.id.id_room);
+        final EditText passRoom = joinRoom.findViewById(R.id.pass_join_room);
+        final Button btn_join = joinRoom.findViewById(R.id.btn_joinRoom);
+        btn_join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String roomId = idRoom.getText().toString().trim();
+                String roomPassword = passRoom.getText().toString();
+                if (roomId.equals("") || roomPassword.equals("")) {
+                    Toast.makeText(MapActivity.this, getResources().getString(R.string.missing_input),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    btn_join.setText(getResources().getString(R.string.joining_text));
+                    btn_join.setEnabled(false);
+                    btn_join.setBackgroundColor(getResources().getColor(R.color.gray));
+                    joinRoom.setCanceledOnTouchOutside(false);
+                    Response.Listener<String> roomResponseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (response.equals(RoomServices.RESULT_SUCCESS)) {
+                                // join room success
+                                // close join-room dialog
+                                user.setJoiningRoomID(Integer.parseInt(roomId));
+                                setLeaveRoomEnable(true);
+                                fab.setOnClickListener(null);
+                                joinRoom.dismiss();
+                                Toast.makeText(MapActivity.this,
+                                        getResources().getString(R.string.join_room_success),
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                joinRoom.setCanceledOnTouchOutside(true);
+                                btn_join.setBackgroundColor(getResources().getColor(R.color.orange));
+                                btn_join.setEnabled(true);
+                                btn_join.setText(getResources().getString(R.string.join_text));
+                                Toast.makeText(MapActivity.this,
+                                        getResources().getString(R.string.join_room_fail),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    };
+                    Response.ErrorListener errorListener = new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            joinRoom.setCanceledOnTouchOutside(true);
+                            btn_join.setBackgroundColor(getResources().getColor(R.color.orange));
+                            btn_join.setEnabled(true);
+                            btn_join.setText(getResources().getString(R.string.join_text));
+                            Toast.makeText(MapActivity.this, getResources().getString(R.string.error_request_server),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    };
+                    RoomServices roomServices = new RoomServices();
+                    roomServices.joinRoom(user.getPhone(), roomId, roomPassword, roomResponseListener, errorListener);
+                }
+            }
+        });
+        joinRoom.show();
+        Window window = joinRoom.getWindow();
+        window.setLayout(Toolbar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void handleLeaveRoom() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(String.format(getString(R.string.leave_room_message), "Missing-value"));
+        builder.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(MapActivity.this, getString(R.string.leaving_text), Toast.LENGTH_LONG).show();
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.equals(RoomServices.RESULT_SUCCESS)) {
+                            user.setJoiningRoomID(0);
+                            setLeaveRoomEnable(false);
+                            fab.setOnClickListener(null);
+                            Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(MapActivity.this, getString(R.string.leave_room_fail),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                };
+                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MapActivity.this, getResources().getString(R.string.error_request_server),
+                                Toast.LENGTH_LONG).show();
+                        error.printStackTrace();
+                    }
+                };
+                RoomServices roomServices = new RoomServices();
+                roomServices.leaveRoom(user.getPhone(), String.valueOf(user.getJoiningRoomID()), responseListener, errorListener);
+            }
+        });
+        builder.setNegativeButton(getString(R.string.cancel_text), null);
+        builder.show();
+    }
+
+    private void sendRoomInfoToFriends(final String roomId, final String roomPassword) {
+        String message = String.format(getString(R.string.send_room_info_message),
+                roomId, roomPassword);
+        AlertDialog.Builder sendSMSDialog = new AlertDialog.Builder(MapActivity.this);
+        sendSMSDialog.setTitle(R.string.create_room_success)
+                .setMessage(message)
+                .setPositiveButton(R.string.send_text, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String body = String.format(getString(R.string.room_info), roomId, roomPassword);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.putExtra("sms_body", body);
+                        intent.setData(Uri.parse("smsto:"));
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.cancel_text, null);
+        sendSMSDialog.show();
     }
 }
