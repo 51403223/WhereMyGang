@@ -22,6 +22,8 @@
             android:background="@drawable/logo_location"
             />
         <EditText
+            android:inputType="phone"
+            android:drawablePadding="10dp"
             android:background="@drawable/vien_tron"
             android:padding="8dp"
             android:layout_marginTop="20dp"
@@ -32,9 +34,11 @@
             android:textSize="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=" Phone Number"
+            android:hint="@string/phone_number_text"
             android:drawableLeft="@drawable/ic_phone" />
         <EditText
+            android:singleLine="true"
+            android:drawablePadding="10dp"
             android:background="@drawable/vien_tron"
             android:padding="8dp"
             android:layout_marginLeft="30dp"
@@ -45,8 +49,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_name"
-            android:hint=" Nick Name"/>
+            android:hint="@string/your_name_text"/>
         <EditText
+            android:drawablePadding="10dp"
             android:background="@drawable/vien_tron"
             android:padding="8dp"
             android:layout_marginLeft="30dp"
@@ -58,9 +63,10 @@
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:drawableLeft="@drawable/ic_password"
-            android:hint=" Password"/>
+            android:hint="@string/password_text"/>
 
         <EditText
+            android:drawablePadding="10dp"
             android:background="@drawable/vien_tron"
             android:padding="8dp"
             android:id="@+id/confirmPass"
@@ -70,7 +76,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:drawableLeft="@drawable/ic_password"
-            android:hint=" Confirm Password"
+            android:hint="@string/confirm_password_text"
             android:inputType="textPassword"
             android:textSize="20dp" />
         <Button
