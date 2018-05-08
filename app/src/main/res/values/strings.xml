@@ -28,6 +28,7 @@
     <string name="confirm_password_text">Confirm Password</string>
     <string name="login_wrong_phone">Your account does not exist. Please check again or sign up a new one</string>
     <string name="login_wrong_password">Login fail. Make sure you typed the correct password</string>
+
     <string name="title_activity_test_map">Map</string>
     <string name="missing_input">Please fill all inputs</string>
     <string name="create_room_fail">Fail to create your room. Please try again</string>
@@ -47,4 +48,12 @@
         your friends?</string>
     <string name="send_text">Send</string>
     <string name="room_info">Where My Gang\nRoom ID: %s\nPassword: %s</string>
+
+    <string name="please_wait_text">Please wait...</string>
+    <string name="logining">Signing into your account</string>
+    <string name="enable_network_text">Network disabled</string>
+    <string name="enable_network_message">This app requires internet to work. Please connect to a network!</string>
+    <string name="enable_gps_text">GPS disabled</string>
+    <string name="enable_gps_message">Turn on device location (GPS) and try again</string>
+
 </resources>

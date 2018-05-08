@@ -121,6 +121,13 @@ public class LocationServices extends Service implements LocationListener, IObje
         }
     }
 
+    @Override
+    public void notifyLocationConnectionLost() {
+        for (ILocationObserver observer : this.observers) {
+            observer.handleLocationConnectionLost();
+        }
+    }
+
     public class LocationServiceBinder extends Binder {
         public LocationServices getLocationService() {
             return LocationServices.this;

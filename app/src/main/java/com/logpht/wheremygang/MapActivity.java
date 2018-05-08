@@ -77,7 +77,6 @@ public class MapActivity extends AppCompatActivity
     private static final int RECEIVE_LOCATION_INTERVAL = 5000; // amount of time to request locations, in miliseconds
 
     public MapActivity () {
-        user = new User("2", "2", "2", 39, 10.755806, 106.722867);
         this.locationServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -101,6 +100,10 @@ public class MapActivity extends AppCompatActivity
         Log.d("map", "oncreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        // receive user from login page
+        this.user = getIntent().getParcelableExtra("user");
+        Log.d("map", "received user: " + user);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -202,7 +205,7 @@ public class MapActivity extends AppCompatActivity
         this.mMap = googleMap;
         mMap.setMyLocationEnabled(true); // show user position
         if (this.user.getJoiningRoomID() != 0) {
-            this.receiveLocationTask.execute(user.getJoiningRoomID());
+            startReceiveLocation();
         }
     }
 
@@ -512,7 +515,7 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onResponse(Object response) {
                 try {
-                    Log.d("map", "received locations");
+                    Log.d("map", "received locations\nresponse: " + response);
                     // get users info
                     String result = (String) response;
                     JSONArray arrayUser = new JSONArray(result);
@@ -544,11 +547,10 @@ public class MapActivity extends AppCompatActivity
                 error.printStackTrace();
             }
         };
-
-        this.receiveLocationTask = new ReceiveLocationTask(RECEIVE_LOCATION_INTERVAL, receiveLocResponse, receiveLocError);
     }
 
     private void startReceiveLocation() {
+        this.receiveLocationTask = new ReceiveLocationTask(RECEIVE_LOCATION_INTERVAL, receiveLocResponse, receiveLocError);
         this.receiveLocationTask.execute(user.getJoiningRoomID());
     }
 
