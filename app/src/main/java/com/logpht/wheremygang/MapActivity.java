@@ -133,6 +133,8 @@ public class MapActivity extends AppCompatActivity
         startLocationService();
         // prepare receive location
         initializeReceiveLocation();
+        // hide sms button
+        disableSendRoomInfo();
     }
 
     private boolean checkGPSEnabled() {
@@ -292,7 +294,6 @@ public class MapActivity extends AppCompatActivity
     private Marker drawUserLocation(User user, float color) {
         Marker marker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
                 color, user.getName()));
-        //moveCameraToMarker(marker);
         return marker;
     }
 
@@ -343,7 +344,9 @@ public class MapActivity extends AppCompatActivity
                                 setLeaveRoomEnable(true);
                                 // close create-room dialog
                                 createRoom.dismiss();
-
+                                // remove old markers and receive new
+                                removeMarkers();
+                                startReceiveLocation();
                                 // ask if user wants to send id & password to friends
                                 sendRoomInfoToFriends(response, roomPassword);
                                 // add send info to button
@@ -404,13 +407,14 @@ public class MapActivity extends AppCompatActivity
                                 // join room success
                                 // close join-room dialog
                                 user.setJoiningRoomID(Integer.parseInt(roomId));
-                                startReceiveLocation();
                                 setLeaveRoomEnable(true);
                                 disableSendRoomInfo();
                                 joinRoom.dismiss();
                                 Toast.makeText(MapActivity.this,
                                         getResources().getString(R.string.join_room_success),
                                         Toast.LENGTH_LONG).show();
+                                removeMarkers();
+                                startReceiveLocation();
                             } else {
                                 joinRoom.setCanceledOnTouchOutside(true);
                                 btn_join.setBackgroundColor(getResources().getColor(R.color.orange));
@@ -455,9 +459,10 @@ public class MapActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         if (response.equals(RoomServices.RESULT_SUCCESS)) {
                             user.setJoiningRoomID(0);
-                            stopReceiveLocation();
                             setLeaveRoomEnable(false);
                             disableSendRoomInfo();
+                            stopReceiveLocation();
+                            removeMarkers();
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -564,17 +569,21 @@ public class MapActivity extends AppCompatActivity
      */
     private void drawMarkers(ArrayList<User> arrUsers) {
         // remove old markers
-        if (this.markerList != null) {
-            for (Marker marker : markerList) {
-                marker.remove();
-            }
-        }
+        removeMarkers();
         // draw new markers
         markerList = new ArrayList<>(arrUsers.size());
         Marker marker;
         for (User u : arrUsers) {
             marker = drawUserLocation(u, colors[1]);
             markerList.add(marker);
+        }
+    }
+
+    private void removeMarkers() {
+        if (this.markerList != null) {
+            for (Marker marker : markerList) {
+                marker.remove();
+            }
         }
     }
 

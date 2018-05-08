@@ -102,7 +102,8 @@ public class LocationServices extends Service implements LocationListener, IObje
 
     @Override
     public void onProviderDisabled(String provider) {
-        //Log.d(tag, "onProviderDisabled");
+        Log.d(tag, "Location is disabled");
+        notifyLocationConnectionLost();
     }
 
     @Override
