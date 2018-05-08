@@ -26,6 +26,8 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -75,6 +77,9 @@ public class MapActivity extends AppCompatActivity
     private Response.Listener receiveLocResponse;
     private Response.ErrorListener receiveLocError;
     private static final int RECEIVE_LOCATION_INTERVAL = 5000; // amount of time to request locations, in miliseconds
+    private LinearLayout headerLayoutNavRight;
+    private Menu menuNavRight;
+    private MenuItem leaveRoomItem;
 
     public MapActivity () {
         this.locationServiceConnection = new ServiceConnection() {
@@ -103,6 +108,7 @@ public class MapActivity extends AppCompatActivity
 
         // receive user from login page
         this.user = getIntent().getParcelableExtra("user");
+        //this.user = new User("1", "1", "1", 0, 0, 0);
         Log.d("map", "received user: " + user);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -118,6 +124,15 @@ public class MapActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // get leave-room item
+        Menu menu = navigationView.getMenu();
+        leaveRoomItem = menu.findItem(R.id.nav_slideshow);
+
+        NavigationView navigationViewRight = findViewById(R.id.nav_view_right);
+        View header = navigationViewRight.getHeaderView(0);
+        headerLayoutNavRight = header.findViewById(R.id.layout_header_nav_right);
+        menuNavRight = navigationViewRight.getMenu();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.content_map);
@@ -135,6 +150,9 @@ public class MapActivity extends AppCompatActivity
         initializeReceiveLocation();
         // hide sms button
         disableSendRoomInfo();
+        // construct nav right
+        constructNavRightHeader("missing name", user.getJoiningRoomID());
+        constructNavRightMenu(receivedUsers, markerList);
     }
 
     private boolean checkGPSEnabled() {
@@ -207,14 +225,7 @@ public class MapActivity extends AppCompatActivity
         this.mMap = googleMap;
         mMap.setMyLocationEnabled(true); // show user position
         // move camera to user location
-        Location location = mMap.getMyLocation();
-
-        if (location != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
-                    location.getLongitude()), zoomLevel));
-        }
-
-
+        moveCameraToMainUser();
         if (this.user.getJoiningRoomID() != 0) {
             startReceiveLocation();
         }
@@ -228,7 +239,8 @@ public class MapActivity extends AppCompatActivity
 
     private void moveCameraToMarker(Marker marker) {
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoomLevel);
-        mMap.moveCamera(cameraUpdate);
+        //mMap.moveCamera(cameraUpdate);
+        mMap.animateCamera(cameraUpdate);
     }
 
     @Override
@@ -307,10 +319,6 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void setLeaveRoomEnable(boolean enable) {
-        // get leave-room item
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        Menu menu = navigationView.getMenu();
-        MenuItem leaveRoomItem = menu.findItem(R.id.nav_slideshow);
         leaveRoomItem.setEnabled(enable);
     }
 
@@ -323,7 +331,7 @@ public class MapActivity extends AppCompatActivity
         btn_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String roomName = nameRoom.getText().toString().trim();
+                final String roomName = nameRoom.getText().toString().trim();
                 final String roomPassword = passRoom.getText().toString();
                 if (roomName.equals("") || roomPassword.equals("")) {
                     Toast.makeText(MapActivity.this, getResources().getString(R.string.missing_input),
@@ -351,11 +359,11 @@ public class MapActivity extends AppCompatActivity
                                 int createRoomId = Integer.parseInt(response);
                                 user.setJoiningRoomID(createRoomId);
                                 setLeaveRoomEnable(true);
-                                // close create-room dialog
-                                createRoom.dismiss();
                                 // remove old markers and receive new
                                 removeMarkers();
                                 startReceiveLocation();
+                                // close create-room dialog
+                                createRoom.dismiss();
                                 // ask if user wants to send id & password to friends
                                 sendRoomInfoToFriends(response, roomPassword);
                                 // add send info to button
@@ -418,12 +426,12 @@ public class MapActivity extends AppCompatActivity
                                 user.setJoiningRoomID(Integer.parseInt(roomId));
                                 setLeaveRoomEnable(true);
                                 disableSendRoomInfo();
+                                removeMarkers();
+                                startReceiveLocation();
                                 joinRoom.dismiss();
                                 Toast.makeText(MapActivity.this,
                                         getResources().getString(R.string.join_room_success),
                                         Toast.LENGTH_LONG).show();
-                                removeMarkers();
-                                startReceiveLocation();
                             } else {
                                 joinRoom.setCanceledOnTouchOutside(true);
                                 btn_join.setBackgroundColor(getResources().getColor(R.color.orange));
@@ -469,11 +477,11 @@ public class MapActivity extends AppCompatActivity
                         if (response.equals(RoomServices.RESULT_SUCCESS)) {
                             user.setJoiningRoomID(0);
                             setLeaveRoomEnable(false);
-                            disableSendRoomInfo();
                             stopReceiveLocation();
-                            removeMarkers();
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
                                     Toast.LENGTH_LONG).show();
+                            disableSendRoomInfo();
+                            removeMarkers();
                         } else {
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_fail),
                                     Toast.LENGTH_LONG).show();
@@ -529,7 +537,7 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onResponse(Object response) {
                 try {
-                    Log.d("map", "received locations\nresponse: " + response);
+                    Log.d("map", "received locations");
                     // get users info
                     String result = (String) response;
                     JSONArray arrayUser = new JSONArray(result);
@@ -545,9 +553,13 @@ public class MapActivity extends AppCompatActivity
                         u.setLatitude(jsonObject.getDouble("latitude"));
                         u.setLongitude(jsonObject.getDouble("longitude"));
                         receivedUsers.add(u);
+                        Log.d("map", "received: " + u);
                     }
                     // draw locations
                     drawMarkers(receivedUsers);
+                    // construct nav right
+                    constructNavRightHeader("missing value", user.getJoiningRoomID());
+                    constructNavRightMenu(receivedUsers, markerList);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -572,6 +584,9 @@ public class MapActivity extends AppCompatActivity
         if (this.receiveLocationTask != null) {
             this.receiveLocationTask.stopTask();
         }
+        // clear nav right
+        constructNavRightHeader(null, 0);
+        constructNavRightMenu(null, null);
     }
 
     /**
@@ -585,8 +600,12 @@ public class MapActivity extends AppCompatActivity
         markerList = new ArrayList<>(arrUsers.size());
         Marker marker;
         for (User u : arrUsers) {
-            marker = drawUserLocation(u, colors[1]);
-            markerList.add(marker);
+            if (u.getPhone().equals(this.user.getPhone())) {
+                markerList.add(null); // add null for main user's marker
+            } else {
+                marker = drawUserLocation(u, colors[1]);
+                markerList.add(marker);
+            }
         }
     }
 
@@ -596,6 +615,59 @@ public class MapActivity extends AppCompatActivity
                 marker.remove();
             }
         }
+    }
+
+    private void constructNavRightHeader(String roomName, int roomId) {
+        headerLayoutNavRight.removeAllViews();
+        TextView textViewRoomName = new TextView(headerLayoutNavRight.getContext());
+        textViewRoomName.setTextSize(16);
+        headerLayoutNavRight.addView(textViewRoomName);
+        if (roomId == 0) {
+            // not in a room
+            textViewRoomName.setText(getString(R.string.not_in_room_message));
+        } else {
+            textViewRoomName.setText(roomName);
+            TextView textViewRoomId = new TextView(headerLayoutNavRight.getContext());
+            textViewRoomId.setText(String.format(getString(R.string.room_id_x), roomId));
+            headerLayoutNavRight.addView(textViewRoomId);
+        }
+    }
+
+    /**
+     * initialize nav view on the right which show the info about the joining room as well as users in that room
+     * @param users - the source to add to nav view right
+     * @param markers - list of markers corresponding to users
+     */
+    private void constructNavRightMenu(ArrayList<User> users, final ArrayList<Marker> markers) {
+        menuNavRight.clear();
+        if (users != null) {
+            for (int i = 0; i < users.size(); i++) {
+                MenuItem menuItem = menuNavRight.add(users.get(i).getName());
+                final Marker m = markers.get(i);
+                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (m != null) {
+                            moveCameraToMarker(m);
+                        } else {
+                            // main user's marker
+                            // call move to blue dot instead
+                            moveCameraToMainUser();
+                        }
+                        return false;
+                    }
+                });
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void moveCameraToMainUser() {
+        checkGPSEnabled();
+        Location location = manager.getLastKnownLocation(manager.GPS_PROVIDER);
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel);
+        mMap.animateCamera(cameraUpdate);
     }
 
 }

@@ -64,4 +64,6 @@
     <string name="enable_gps_message">Turn on device location (GPS) and try again</string>
 
     <string name="string_sign_up">Don"'"t have account? <u>Sign up here</u>.</string>
+    <string name="not_in_room_message">You are not in a room</string>
+    <string name="room_id_x">Room ID: %d</string>
 </resources>
