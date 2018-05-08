@@ -47,4 +47,10 @@
         your friends?</string>
     <string name="send_text">Send</string>
     <string name="room_info">Where My Gang\nRoom ID: %s\nPassword: %s</string>
+    <string name="IDRoom">ID Room: 30</string>
+    <string name="RoomName">Room Name: Vũng Tàu </string>
+    <string name="CreateRoom">Create Room</string>
+    <string name="JoinRoom">Join Room</string>
+    <string name="LeaveRoom">Leave Room</string>
+    <string name="LogOut">Logout</string>
 </resources>

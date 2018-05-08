@@ -6,28 +6,25 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Create Room" />
+            android:icon="@drawable/item_create_room"
+            android:title="@string/CreateRoom" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="JoinRoom" />
+            android:icon="@drawable/item_join_room"
+            android:title="@string/JoinRoom" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Leave Room" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Delte Room" />
+            android:icon="@drawable/item_leave_room"
+            android:title="@string/LeaveRoom" />
+
     </group>
 
     <item android:title="Account">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Logout" />
+                android:icon="@drawable/item_logout"
+                android:title="@string/LogOut" />
 
         </menu>
     </item>
