@@ -33,6 +33,7 @@
         android:orientation="vertical">
 
         <EditText
+            android:inputType="phone"
             android:layout_marginTop="30dp"
             android:textSize="20dp"
             android:drawablePadding="10dp"
