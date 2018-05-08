@@ -261,24 +261,6 @@ public class MapActivity extends AppCompatActivity
             handleJoinRoom();
         } else if (id == R.id.nav_slideshow) {
             handleLeaveRoom();
-        } else if (id == R.id.nav_manage) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-            builder.setTitle("Delte Room");
-            builder.setMessage("If you delete this Room, all member in Room will be dismissed. Are you sure to Delete Room?");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                    Toast.makeText(MapActivity.this, "Your Room is deleted", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(MapActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.show();
         } else if (id == R.id.nav_share) {
 
         }
@@ -361,12 +343,14 @@ public class MapActivity extends AppCompatActivity
 
                                 // ask if user wants to send id & password to friends
                                 sendRoomInfoToFriends(response, roomPassword);
+                                // add send info to button
                                 fab.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
                                         sendRoomInfoToFriends(response, roomPassword);
                                     }
                                 });
+                                fab.setVisibility(View.VISIBLE);
                             }
                         }
                     };
@@ -419,7 +403,7 @@ public class MapActivity extends AppCompatActivity
                                 user.setJoiningRoomID(Integer.parseInt(roomId));
                                 startReceiveLocation();
                                 setLeaveRoomEnable(true);
-                                fab.setOnClickListener(null);
+                                disableSendRoomInfo();
                                 joinRoom.dismiss();
                                 Toast.makeText(MapActivity.this,
                                         getResources().getString(R.string.join_room_success),
@@ -470,7 +454,7 @@ public class MapActivity extends AppCompatActivity
                             user.setJoiningRoomID(0);
                             stopReceiveLocation();
                             setLeaveRoomEnable(false);
-                            fab.setOnClickListener(null);
+                            disableSendRoomInfo();
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -513,6 +497,11 @@ public class MapActivity extends AppCompatActivity
                 })
                 .setNegativeButton(R.string.cancel_text, null);
         sendSMSDialog.show();
+    }
+
+
+    private void disableSendRoomInfo() {
+        fab.setVisibility(View.INVISIBLE);
     }
 
     /**
