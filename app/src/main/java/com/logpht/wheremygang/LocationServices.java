@@ -34,16 +34,17 @@ public class LocationServices extends Service implements LocationListener, IObje
     protected String userID; // id of current user
     private IBinder binder = new LocationServiceBinder();
     protected RequestQueue requestQueue = new RequestQueue(new NoCache(), new BasicNetwork(new HurlStack()));
+    private static String tag = "Location Service";
 
     @Override
     public void onCreate() {
-        //Log.d("location service", "oncreate");
+        Log.d(tag, "On create");
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
-        //Log.d("location service", "ondestroy");
+        Log.d(tag, "On Destroy");
         super.onDestroy();
     }
 
@@ -59,13 +60,13 @@ public class LocationServices extends Service implements LocationListener, IObje
     }
 
     private void sendUserLocation(final Location location) {
-        //Log.d("location service", "sendUserLocation");
+        Log.d(tag, "Sending user location to server");
 
         String url = host + "/UpdateLocation.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, null, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("location service", "error send location");
+                Log.d(tag, "Error send location");
                 error.printStackTrace();
             }
         }) {
@@ -84,24 +85,24 @@ public class LocationServices extends Service implements LocationListener, IObje
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("location service", "location change");
+        Log.d(tag, "Location changed. Continue to send them to server then update user location in MapActivity");
         sendUserLocation(location);
-        //this.notifyObservers(location);
+        this.notifyObservers(location);
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-       // Log.d("location service", "onStatusChanged");
+        //Log.d(tag, "onStatusChanged");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        //Log.d("location service", "onProviderEnabled");
+        //Log.d(tag, "onProviderEnabled");
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        //Log.d("location service", "onProviderDisabled");
+        //Log.d(tag, "onProviderDisabled");
     }
 
     @Override
@@ -117,6 +118,13 @@ public class LocationServices extends Service implements LocationListener, IObje
     public void notifyObservers(Object data) {
         for (ILocationObserver observer : this.observers) {
             observer.handleDataChange(data);
+        }
+    }
+
+    @Override
+    public void notifyLocationConnectionLost() {
+        for (ILocationObserver observer : this.observers) {
+            observer.handleLocationConnectionLost();
         }
     }
 

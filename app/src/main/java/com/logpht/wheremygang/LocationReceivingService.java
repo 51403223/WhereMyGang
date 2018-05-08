@@ -27,8 +27,8 @@ public class LocationReceivingService extends LocationServices {
     }
 
     public void startReceiveLoop(int interval) {
-        task = new ReceiveLocationTask(interval);
-        task.execute();
+        //task = new ReceiveLocationTask(interval);
+        //task.execute();
     }
 
     @Nullable
