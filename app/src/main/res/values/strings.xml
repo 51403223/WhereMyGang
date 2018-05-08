@@ -63,5 +63,5 @@
     <string name="enable_gps_text">GPS disabled</string>
     <string name="enable_gps_message">Turn on device location (GPS) and try again</string>
 
-    <string name="string_sign_up">Don&apos;t have account? <u>Sign up here</u>.</string>
+    <string name="string_sign_up">Don"'"t have account? <u>Sign up here</u>.</string>
 </resources>
