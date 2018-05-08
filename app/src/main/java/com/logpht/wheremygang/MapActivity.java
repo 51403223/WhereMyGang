@@ -206,6 +206,15 @@ public class MapActivity extends AppCompatActivity
         Log.d("map", "on map ready");
         this.mMap = googleMap;
         mMap.setMyLocationEnabled(true); // show user position
+        // move camera to user location
+        Location location = mMap.getMyLocation();
+
+        if (location != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
+                    location.getLongitude()), zoomLevel));
+        }
+
+
         if (this.user.getJoiningRoomID() != 0) {
             startReceiveLocation();
         }
@@ -560,7 +569,9 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void stopReceiveLocation() {
-        this.receiveLocationTask.stopTask();
+        if (this.receiveLocationTask != null) {
+            this.receiveLocationTask.stopTask();
+        }
     }
 
     /**
