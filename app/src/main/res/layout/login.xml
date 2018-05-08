@@ -1,48 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/nen6"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <ImageView
-        android:layout_marginTop="50dp"
         android:layout_gravity="center"
         android:id="@+id/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/logoapp_250"
+        app:srcCompat="@drawable/logo_location"
+        android:layout_marginTop="20dp"
         />
+    <TextView
+
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center"
+        android:textColor="@color/red"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WHERE'S MY GANG?"
+        android:textSize="30dp"
+        android:textStyle="bold"/>
     <LinearLayout
-        android:layout_marginTop="-40dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/signup_background"
         android:id="@+id/aaa"
-        android:gravity="center"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <EditText
-            android:drawableLeft="@drawable/ic_phone"
+            android:layout_marginTop="30dp"
+            android:textSize="20dp"
             android:drawablePadding="10dp"
             android:id="@+id/txtPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="30dp"
-            android:inputType="phone"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/vien_tron"
+            android:drawableLeft="@drawable/ic_phone"
+            android:padding="8dp"
             android:hint="@string/phone_number_text"
             />
         <EditText
-            android:drawableLeft="@drawable/ic_password"
             android:drawablePadding="10dp"
-            android:layout_marginTop="30dp"
             android:id="@+id/txtPassword"
-            android:textSize="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/vien_tron"
+            android:drawableLeft="@drawable/ic_password"
             android:inputType="textPassword"
+            android:padding="8dp"
+            android:textSize="20dp"
             android:hint="@string/password_text"
             />
 	<CheckBox
@@ -56,23 +72,25 @@
             android:layout_marginTop="10dp"
             android:checked="false"/>
         <Button
-            android:background="@color/orange"
+            android:layout_gravity="center"
+            android:background="@drawable/btn_sign_in"
             android:textColor="@color/white"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:id="@+id/btnLogin"
-            android:text="@string/login_text"
             android:textSize="25dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
         <TextView
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
             android:id="@+id/txtsignup"
-            android:text="@string/sign_up_underline_text"
-            android:textSize="17dp"
-            android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/string_sign_up"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17dp" />
     </LinearLayout>
 
 </LinearLayout>

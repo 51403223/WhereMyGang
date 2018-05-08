@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-
+    android:background="@drawable/nen8"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-      <ImageView
-          android:layout_gravity="center"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@drawable/logoapp_250"
-          />
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="vertical"
+        android:background="@drawable/signup_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/logo_location"
+            />
         <EditText
+            android:background="@drawable/vien_tron"
+            android:padding="8dp"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
@@ -20,23 +32,23 @@
             android:textSize="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/phone_number_text"
-	        android:inputType="phone"
-            android:drawableLeft="@drawable/ic_phone"
-            android:drawablePadding="10dp" />
+            android:hint=" Phone Number"
+            android:drawableLeft="@drawable/ic_phone" />
         <EditText
+            android:background="@drawable/vien_tron"
+            android:padding="8dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="20dp"
             android:id="@+id/nickname"
             android:textSize="20dp"
-            android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_name"
-            android:drawablePadding="10dp"
-            android:hint="@string/your_name_text"/>
+            android:hint=" Nick Name"/>
         <EditText
+            android:background="@drawable/vien_tron"
+            android:padding="8dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginBottom="20dp"
@@ -46,10 +58,11 @@
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:drawableLeft="@drawable/ic_password"
-            android:drawablePadding="10dp"
-            android:hint="@string/password_text"/>
+            android:hint=" Password"/>
 
-    <EditText
+        <EditText
+            android:background="@drawable/vien_tron"
+            android:padding="8dp"
             android:id="@+id/confirmPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,21 +70,17 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:drawableLeft="@drawable/ic_password"
-            android:drawablePadding="10dp"
-            android:hint="@string/confirm_password_text"
+            android:hint=" Confirm Password"
             android:inputType="textPassword"
             android:textSize="20dp" />
-
-    <Button
-            android:background="@color/orange"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
+        <Button
+            android:layout_gravity="center"
+            android:background="@drawable/ic_sign_up"
             android:textColor="@color/white"
             android:shadowColor="@color/white"
             android:id="@+id/btnSignUp"
-            android:text="@string/sign_up_text"
             android:textSize="25dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>
