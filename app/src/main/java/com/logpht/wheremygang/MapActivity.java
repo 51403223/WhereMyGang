@@ -298,6 +298,12 @@ public class MapActivity extends AppCompatActivity
         updateUserLocation(newLocation);
     }
 
+    @Override
+    public void handleLocationConnectionLost() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle()
+    }
+
     private Marker drawUserLocation(User user, float color) {
         Marker marker = this.mMap.addMarker(createMarker(new LatLng(user.getLatitude(), user.getLongitude()),
                 color, user.getName()));

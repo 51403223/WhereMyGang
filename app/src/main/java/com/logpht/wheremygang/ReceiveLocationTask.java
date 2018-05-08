@@ -81,4 +81,11 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
             observer.handleDataChange(data);
         }
     }
+
+    @Override
+    public void notifyLocationConnectionLost() {
+        for (ILocationObserver observer : this.observers) {
+            observer.handleLocationConnectionLost();
+        }
+    }
 }
