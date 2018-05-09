@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">WhereMyGang</string>
-    <string name="title_activity_map">MapActivity</string>
+    <string name="app_name">Where"'"s My Gang</string>
+    <string name="title_activity_map">Where"'"s My Gang?</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">User Name</string>
     <string name="nav_header_subtitle">0986780891</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">About</string>
     <string name="check_phone">PHONE NUMBER must consist of numbers only</string>
     <string name="check_name">NAME only supports alphabet, numbers and spaces</string>
     <string name="empty_password">PASSWORD must not be empty</string>
@@ -68,4 +68,9 @@
     <string name="room_id_x">Room ID: %d</string>
     <string name="gps_lost_message">Your location won"'"t be showed to your friends until you turned it on again</string>
     <string name="press_back_more_to_exit">Press back one more time to exit</string>
+    <string name="about">Ứng dụng được phát triển bởi Trần Thanh Long và Huỳnh Tấn Phát \n
+        Chúng tôi mong nhận được sự đóng góp, phản hồi từ người dùng để ứng dụng được hoàn thiện tốt hơn.\n
+        Mọi chi tiết đóng góp xin gửi về email: huynhtanphat5596@gmail.com \n
+        Chân thành cảm ơn, chúc các bạn có một trải nghiệm thú vị với ứng dụng này !!</string>
+    <string name="thankyou">Chúng tôi xin chân thành cảm ơn.</string>
 </resources>
