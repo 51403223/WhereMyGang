@@ -11,14 +11,16 @@ public class User implements Parcelable {
     private String name;
     private String password;
     private int joiningRoomID;
+    private String joiningRoomName;
     private double longitude;
     private double latitude;
 
-    public User(String phone, String name, String password, int joiningRoomID, double latitude, double longitude) {
+    public User(String phone, String name, String password, int joiningRoomID, String joiningRoomName, double longitude, double latitude) {
         this.phone = phone;
         this.name = name;
         this.password = password;
         this.joiningRoomID = joiningRoomID;
+        this.joiningRoomName = joiningRoomName;
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -28,6 +30,7 @@ public class User implements Parcelable {
         this.phone = "";
         this.name = "";
         this.password = "";
+        this.joiningRoomName = "";
     }
 
     protected User(Parcel in) {
@@ -37,6 +40,7 @@ public class User implements Parcelable {
         joiningRoomID = in.readInt();
         longitude = in.readDouble();
         latitude = in.readDouble();
+        joiningRoomName = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -99,6 +103,14 @@ public class User implements Parcelable {
         this.latitude = latitude;
     }
 
+    public String getJoiningRoomName() {
+        return joiningRoomName;
+    }
+
+    public void setJoiningRoomName(String joiningRoomName) {
+        this.joiningRoomName = joiningRoomName;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -106,6 +118,7 @@ public class User implements Parcelable {
                 ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 ", joiningRoomID=" + joiningRoomID +
+                ", joiningRoomName='" + joiningRoomName + '\'' +
                 ", longitude=" + longitude +
                 ", latitude=" + latitude +
                 '}';
@@ -124,5 +137,6 @@ public class User implements Parcelable {
         dest.writeInt(joiningRoomID);
         dest.writeDouble(longitude);
         dest.writeDouble(latitude);
+        dest.writeString(joiningRoomName);
     }
 }

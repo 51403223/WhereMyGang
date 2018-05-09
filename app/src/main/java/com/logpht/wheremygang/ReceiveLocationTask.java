@@ -38,6 +38,7 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
 
     @Override
     protected Void doInBackground(Integer... integers) {
+        Log.e(tag, "doInBackground with num of params = " + integers.length);
         int roomId = integers[0];
         while (continueLoop) {
             try {
@@ -52,7 +53,7 @@ public class ReceiveLocationTask extends AsyncTask<Integer,Void,Void> implements
     }
 
     public void receiveLocations(final int roomId, Response.Listener response, Response.ErrorListener errorListener) {
-        Log.d(tag, "requesting server for locations");
+        Log.d(tag, "requesting server for locations of user in room id = " + roomId);
         String url = LocationServices.host + "/getLocationUserInRoom.php";
         StringRequest request = new StringRequest(Request.Method.POST, url, response, errorListener) {
             @Override

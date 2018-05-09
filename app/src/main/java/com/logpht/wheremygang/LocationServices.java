@@ -92,12 +92,12 @@ public class LocationServices extends Service implements LocationListener, IObje
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        //Log.d(tag, "onStatusChanged");
+        Log.d(tag, "onStatusChanged");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        //Log.d(tag, "onProviderEnabled");
+        Log.d(tag, "Location is enable");
     }
 
     @Override

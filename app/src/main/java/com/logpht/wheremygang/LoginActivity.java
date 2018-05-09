@@ -48,6 +48,7 @@ public class LoginActivity extends AppCompatActivity
     private static final String WRONG_PASSWORD = "Wrong Password";
     private static final String JSON_NAME_PARAM = "name";
     private static final String JSON_IDROOM_PARAM = "idRoom";
+    private static final String JSON_ROOM_NAME_PARAM = "nameRoom";
     private static final int MY_REQUEST_PERMISSIONS_CODE = 1;
 
     @Override
@@ -60,6 +61,7 @@ public class LoginActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        this.accountService = new AccountService(this);
         this.txtSignUp = findViewById(R.id.txtsignup);
         txtSignUp.setOnClickListener(this);
         this.edTxtPhone = findViewById(R.id.txtPhoneNumber);
@@ -69,13 +71,24 @@ public class LoginActivity extends AppCompatActivity
         this.btnLogin = findViewById(R.id.btnLogin);
         this.btnLogin.setOnClickListener(this);
         this.chkBoxRemember = findViewById(R.id.chkBoxRemember);
-        // try to read saved account
-        readFileGang();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        Intent intent = getIntent();
+        String logout = intent.getStringExtra(MapActivity.LOGOUT);
+        Log.e("Login", "App start from log out" + (logout == null));
+        if (logout == null && readFileGang()) {
+            // app started from launcher and read file success
+            // try to login user choose stay signed in last time
+            onClick(this.btnLogin);
+        } else {
+            // user loged out
+            this.accountService.deleteSavedAccount();
+            this.user = new User();
+        }
         this.edTxtPhone.setSelection(this.edTxtPhone.getText().length());
         this.edTxtPassword.setSelection(this.edTxtPassword.getText().length());
     }
@@ -142,17 +155,21 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    private void readFileGang() {
-        this.accountService = new AccountService(this);
+    private boolean readFileGang() {
         try {
             this.user = accountService.readSavedAccount();
             Log.e("LoginActivity", "Read file gang successfully");
             this.edTxtPhone.setText(this.user.getPhone());
             this.edTxtPassword.setText(this.user.getPassword());
+            return true;
         } catch (FileNotFoundException e) {
             Log.e("LoginActivity", "File gang doesn't exist");
             this.user = new User();
+        } catch (Exception e) {
+            Log.e("LoginActivity", "Other error when read file gang");
+            this.user = new User();
         }
+        return false;
     }
 
     private void writeGangFile() {
@@ -220,6 +237,7 @@ public class LoginActivity extends AppCompatActivity
                 JSONObject jsonObject = new JSONObject((String) response);
                 this.user.setJoiningRoomID(jsonObject.getInt(JSON_IDROOM_PARAM));
                 this.user.setName(jsonObject.getString(JSON_NAME_PARAM));
+                this.user.setJoiningRoomName(jsonObject.getString(JSON_ROOM_NAME_PARAM));
                 // write gang file as user want
                 if (this.chkBoxRemember.isChecked()) {
                     writeGangFile();
@@ -232,7 +250,7 @@ public class LoginActivity extends AppCompatActivity
                 Intent mapIntent = new Intent(this, MapActivity.class);
                 mapIntent.putExtra("user", this.user);
                 startActivity(mapIntent);
-                
+                finish();
                 //Toast.makeText(this, "Login success", Toast.LENGTH_LONG).show();
             } catch (JSONException e) {
                 e.printStackTrace();

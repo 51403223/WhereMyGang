@@ -17,7 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RoomServices {
+    protected static final String RESULT_FAIL = "";
     protected static final String RESULT_SUCCESS = "success";
+    private static final String tag = "RoomServices";
 
     public void createRoom(final String ownerID, final String nameRoom, final String passRoom,
                           Response.Listener responseListener, Response.ErrorListener errorListener) {
@@ -40,6 +42,7 @@ public class RoomServices {
 
     public void joinRoom(final String IDUser, final String IDRoom, final String passRoom,
                           Response.Listener responseListener, Response.ErrorListener errorListener) {
+        Log.d(tag, "joinRoom " + IDRoom);
         String url = LocationServices.host + "/LoginRoom.php";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
             // put params
@@ -59,6 +62,7 @@ public class RoomServices {
 
     public void leaveRoom(final String IDUser, final String IDRoom,
                           Response.Listener responseListener, Response.ErrorListener errorListener) {
+        Log.d(tag, "leaveRoom " + IDRoom);
         String url = LocationServices.host + "/LeaveRoom.php";
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, responseListener, errorListener) {
             // put params

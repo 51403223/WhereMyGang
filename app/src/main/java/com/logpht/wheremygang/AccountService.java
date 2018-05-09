@@ -74,7 +74,8 @@ public class AccountService {
             String s = user.getPhone() + "\n" +
                     user.getName() + "\n" +
                     user.getPassword() + "\n" +
-                    user.getJoiningRoomID();
+                    user.getJoiningRoomID() + "\n" +
+                    user.getJoiningRoomName();
             writer.write(s);
             writer.close();
             return true;
@@ -102,6 +103,7 @@ public class AccountService {
                 user.setName(scanner.nextLine());
                 user.setPassword(scanner.nextLine());
                 user.setJoiningRoomID(Integer.parseInt(scanner.nextLine()));
+                user.setJoiningRoomName(scanner.nextLine());
                 return user;
             } catch (Exception e) {
                 e.printStackTrace();

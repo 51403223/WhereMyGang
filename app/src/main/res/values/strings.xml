@@ -16,7 +16,7 @@
     <string name="error_text">Error</string>
     <string name="ok_text">OK</string>
     <string name="login_after_signup">Successfully create your account.\nEnjoy!!!</string>
-    <string name="remember_account">Remember this account</string>
+    <string name="remember_account">Keep me signed in</string>
     <string name="sign_up_underline_text">
         <u>SIGN UP</u>
     </string>
@@ -66,4 +66,6 @@
     <string name="string_sign_up">Don"'"t have account? <u>Sign up here</u>.</string>
     <string name="not_in_room_message">You are not in a room</string>
     <string name="room_id_x">Room ID: %d</string>
+    <string name="gps_lost_message">Your location won"'"t be showed to your friends until you turned it on again</string>
+    <string name="press_back_more_to_exit">Press back one more time to exit</string>
 </resources>
