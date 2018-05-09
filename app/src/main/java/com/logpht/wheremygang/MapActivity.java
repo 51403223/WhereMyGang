@@ -4,9 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -255,7 +257,9 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
+
         // move camera to user location
+        moveCameraToMainUser();
         startReceiveLocation();
     }
 
@@ -313,6 +317,10 @@ public class MapActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.e("E", "aaa");
+            Dialog dialog = new Dialog(this );
+            dialog.setContentView(R.layout.about);
+            dialog.show();
             return true;
         }
 
@@ -534,12 +542,12 @@ public class MapActivity extends AppCompatActivity
                             user.setJoiningRoomID(0);
                             user.setJoiningRoomName("");
                             setLeaveRoomEnable(false);
+                            removeMarkers();
                             stopReceiveLocation();
                             constructNavRightHeader(null, 0);
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
                                     Toast.LENGTH_LONG).show();
                             disableSendRoomInfo();
-                            removeMarkers();
                         } else {
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_fail),
                                     Toast.LENGTH_LONG).show();
@@ -747,11 +755,23 @@ public class MapActivity extends AppCompatActivity
 
     @SuppressLint("MissingPermission")
     private void moveCameraToMainUser() {
-//        checkGPSEnabled();
-//        Location location = manager.getLastKnownLocation(manager.GPS_PROVIDER);
-//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel);
-//        mMap.animateCamera(cameraUpdate);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location mylocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        if(mylocation==null) {
+            Log.e("E","null roi");
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            String provider = locationManager.getBestProvider(criteria,true);
+            mylocation = locationManager.getLastKnownLocation(provider);
+
+        }
+        if(mylocation!=null) {
+            Log.e("E","Khong null");
+            LatLng latLng = new LatLng(mylocation.getLatitude(), mylocation.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+            mMap.animateCamera(cameraUpdate);
+        }
     }
 
     private void handleLogout() {
