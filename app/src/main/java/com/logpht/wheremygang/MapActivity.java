@@ -542,7 +542,7 @@ public class MapActivity extends AppCompatActivity
                             user.setJoiningRoomID(0);
                             user.setJoiningRoomName("");
                             setLeaveRoomEnable(false);
-                            removeMarkers();
+                            // removeMarkers();
                             stopReceiveLocation();
                             constructNavRightHeader(null, 0);
                             Toast.makeText(MapActivity.this, getString(R.string.leave_room_success),
@@ -658,6 +658,8 @@ public class MapActivity extends AppCompatActivity
         if (this.receiveLocationTask != null) {
             this.receiveLocationTask.stopTask();
         }
+        // clear markers
+        removeMarkers();
         // clear nav right
         this.receivedUsers = null;
         this.markerList = null;
