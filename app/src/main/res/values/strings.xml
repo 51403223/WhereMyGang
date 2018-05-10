@@ -47,7 +47,7 @@
     <string name="send_room_info_message">Your room ID: %s\nPassword: %s\nDo you want to send these info to
         your friends?</string>
     <string name="send_text">Send</string>
-    <string name="room_info">Where My Gang\nRoom ID: %s\nPassword: %s</string>
+    <string name="room_info"> "Where My Gang\nRoom ID: %s\nPassword: %s \n Please download and install app Where My Gang: \n https://drive.google.com/open?id=1WTS1pp_TWKgCDOwZ6C0K2LY5WN2l9N3C  "</string>
 
     <string name="IDRoom">ID Room: 30</string>
     <string name="RoomName">Room Name: Vũng Tàu </string>

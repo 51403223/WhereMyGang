@@ -353,7 +353,7 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void handleDataChange(Object data) {
-        Toast.makeText(this, "---------------", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "---------------", Toast.LENGTH_LONG).show();
         Location newLocation = (Location) data;
         updateUserLocation(newLocation);
     }
