@@ -73,4 +73,6 @@
         Mọi chi tiết đóng góp xin gửi về email: huynhtanphat5596@gmail.com \n
         Chân thành cảm ơn, chúc các bạn có một trải nghiệm thú vị với ứng dụng này !!</string>
     <string name="thankyou">Chúng tôi xin chân thành cảm ơn.</string>
+    <string name="network_lost_text">Network lost</string>
+    <string name="network_lost_message">Please connect to a network to get the newest locations of your friends</string>
 </resources>

@@ -7,10 +7,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,6 +90,7 @@ public class MapActivity extends AppCompatActivity
     public static final String LOGOUT = "logout";
     private boolean backFirstPressed = false;
     private final int TIME_TO_WAIT_PRESS = 3000; // time to wait user to press back button again to exit
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
 
     public MapActivity () {
         this.locationServiceConnection = new ServiceConnection() {
@@ -159,6 +162,11 @@ public class MapActivity extends AppCompatActivity
             setLeaveRoomEnable(false);
         }
 
+        // Registers BroadcastReceiver to track network connection changes.
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        networkBroadcastReceiver = new NetworkBroadcastReceiver();
+        this.registerReceiver(networkBroadcastReceiver, filter);
+
         // start location service
         startLocationService();
         // prepare receive location
@@ -224,6 +232,9 @@ public class MapActivity extends AppCompatActivity
         Log.d("map", "ondestroy");
         super.onDestroy();
         unbindService(this.locationServiceConnection);
+        if (networkBroadcastReceiver != null) {
+            unregisterReceiver(networkBroadcastReceiver);
+        }
     }
 
     private void startLocationService() {

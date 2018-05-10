@@ -51,6 +51,8 @@
         <activity android:name=".SignUpActivity" android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
+        <receiver android:name=".NetworkBroadcastReceiver" />
+
     </application>
 
 </manifest>
