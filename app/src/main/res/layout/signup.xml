@@ -4,89 +4,97 @@
     android:background="@drawable/nen8"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <ScrollView
 
-
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:orientation="vertical"
-        android:background="@drawable/signup_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/logo_location"
-            />
-        <EditText
-            android:inputType="phone"
-            android:drawablePadding="10dp"
-            android:background="@drawable/vien_tron"
-            android:padding="8dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/phoneSignUp"
-            android:textSize="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/phone_number_text"
-            android:drawableLeft="@drawable/ic_phone" />
-        <EditText
-            android:singleLine="true"
-            android:drawablePadding="10dp"
-            android:background="@drawable/vien_tron"
-            android:padding="8dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/nickname"
-            android:textSize="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_name"
-            android:hint="@string/your_name_text"/>
-        <EditText
-            android:drawablePadding="10dp"
-            android:background="@drawable/vien_tron"
-            android:padding="8dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/pass"
-            android:textSize="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:drawableLeft="@drawable/ic_password"
-            android:hint="@string/password_text"/>
+        android:layout_height="match_parent">
+        <LinearLayout
 
-        <EditText
-            android:drawablePadding="10dp"
-            android:background="@drawable/vien_tron"
-            android:padding="8dp"
-            android:id="@+id/confirmPass"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical"
+            android:background="@drawable/signup_background"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:drawableLeft="@drawable/ic_password"
-            android:hint="@string/confirm_password_text"
-            android:inputType="textPassword"
-            android:textSize="20dp" />
-        <Button
-            android:layout_gravity="center"
-            android:background="@drawable/ic_sign_up"
-            android:textColor="@color/white"
-            android:shadowColor="@color/white"
-            android:id="@+id/btnSignUp"
-            android:textSize="25dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/logo_location"
+                />
+            <EditText
+                android:inputType="phone"
+                android:drawablePadding="10dp"
+                android:background="@drawable/vien_tron"
+                android:padding="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/phoneSignUp"
+                android:textSize="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number_text"
+                android:drawableLeft="@drawable/ic_phone" />
+            <EditText
+                android:singleLine="true"
+                android:drawablePadding="10dp"
+                android:background="@drawable/vien_tron"
+                android:padding="8dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/nickname"
+                android:textSize="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_name"
+                android:hint="@string/your_name_text"/>
+            <EditText
+                android:drawablePadding="10dp"
+                android:background="@drawable/vien_tron"
+                android:padding="8dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/pass"
+                android:textSize="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:drawableLeft="@drawable/ic_password"
+                android:hint="@string/password_text"/>
+
+            <EditText
+                android:drawablePadding="10dp"
+                android:background="@drawable/vien_tron"
+                android:padding="8dp"
+                android:id="@+id/confirmPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:drawableLeft="@drawable/ic_password"
+                android:hint="@string/confirm_password_text"
+                android:inputType="textPassword"
+                android:textSize="20dp" />
+            <Button
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_sign_up"
+                android:textColor="@color/white"
+                android:shadowColor="@color/white"
+                android:id="@+id/btnSignUp"
+                android:textSize="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </ScrollView>
+
+
 </LinearLayout>
